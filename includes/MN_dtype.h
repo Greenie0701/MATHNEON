@@ -12,6 +12,7 @@
 /////////////////////////////////////////////////////////
 
 typedef int      MN_result_t;
+typedef int32_t  MN_int32_t;
 typedef float    MN_float32_t;
 typedef uint32_t MN_uint32_t;
 
@@ -21,6 +22,35 @@ typedef uint32_t MN_uint32_t;
 #define MN_SUCCESS 0
 #define MN_ERROR -1
 
+/**
+ * @brief A 2-tuple of MN_int32_t values.
+ */
+typedef struct
+{
+    MN_int32_t x;
+    MN_int32_t y;
+} MN_vec2i_t;
+
+/**
+ * @brief A 3-tuple of MN_int32_t values.
+ */
+typedef struct
+{
+    MN_int32_t x;
+    MN_int32_t y;
+    MN_int32_t z;
+} MN_vec3i_t;
+
+/**
+ * @brief A 4-tuple of MN_int32_t values.
+ */
+typedef struct
+{
+    MN_int32_t x;
+    MN_int32_t y;
+    MN_int32_t z;
+    MN_int32_t w;
+} MN_vec4i_t;
 
 /**
  * @brief A 2-tuple of MN_float32_t values.
