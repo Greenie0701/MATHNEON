@@ -1,1 +1,28 @@
+name: Build MATHNEON on Windows ARM64
 
+on:
+  push:
+    branches: [ main ]
+    
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows-arm-build:
+    runs-on: windows-11-arm
+    steps:
+      - name: Setup MSVC for Windows(ARM64)
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce
+        with:
+          msbuild-architecture: arm64
+          
+      - name: Create Directories
+        run: cmake -E make_directory ${{ github.workspace }}/build 
+
+      - name: Generating Build Scripts
+        run: cmake ..
+        working-directory: ${{ github.workspace }}/build
+        
+      - name: Build
+        run: cmake --build .
+        working-directory: ${{ github.workspace }}/build
