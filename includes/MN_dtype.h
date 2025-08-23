@@ -1,3 +1,5 @@
+// MN_dtype.h
+
 #ifndef MN_DTYPES_H
 #define MN_DTYPES_H
 
@@ -49,3 +51,5 @@ typedef struct
     MN_float32_t z;
     MN_float32_t w;
 } MN_vec4f_t;
+
+#endif // MN_DTYPES_H
