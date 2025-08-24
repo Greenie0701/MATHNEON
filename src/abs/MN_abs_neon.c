@@ -28,5 +28,14 @@ mn_result_t mn_abs_float_neon(mn_float32_t * dst, mn_float32_t * src, mn_uint32_
     return MN_SUCCESS;
 }
 
+mn_result_t mn_abs_int32_neon(mn_int32_t * dst, mn_int32_t * src, mn_uint32_t count)
+{
+    MN_ABS_DstSrc_DO_COUNT_TIMES_INT32_NEON(
+        MN_MAINLOOP_INT32_NEON_ABS,  /* SIMD main loop */
+        MN_SECONDLOOP_INT32_ABS      /* leftover elements */
+    );
+
+    return MN_SUCCESS;
+}
 
 
