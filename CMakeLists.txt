@@ -11,7 +11,7 @@ file(GLOB_RECURSE SOURCES
 )
 
 #Generate test executable to validate implementations 
-add_executable(test_abs test/test_abs.c)
+add_executable(test_abs test/test_abs_neon.c)
 target_link_libraries(test_abs PRIVATE MATHNEON)
 
 add_library(MATHNEON STATIC ${SOURCES})
