@@ -216,6 +216,14 @@ Notes:
      loopCode; /* exceptional cases where the count isn't a multiple of 2 */ \
      vst1_s32( (int32_t*)dst, n_rest); \
 }
+
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC2I_NEON(loopCode1, loopCode2) { \
+    MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
+    MN_ABS_DstSrc_OPERATION_VEC2I_NEON(  \
+        MN_ABS_DstSrc_MAINLOOP_VEC2I_NEON(loopCode1); , \
+        MN_ABS_DstSrc_SECONDLOOP_VEC2I_NEON(loopCode2); \
+    ); \
+}
 // -----------------------------------------------------------------------------
 // End of header guards
 // -----------------------------------------------------------------------------
