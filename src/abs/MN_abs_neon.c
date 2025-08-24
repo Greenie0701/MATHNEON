@@ -52,8 +52,6 @@ mn_result_t mn_abs_vec2f_neon(mn_vec2f_t * dst, mn_vec2f_t * src, uint32_t count
         ,
         n_rest =  vabsq_f32(n_rest);
     );
-
-    return MN_SUCCESS;
 }
 
 mn_result_t mn_abs_vec2i_neon(mn_vec2i_t * dst, mn_vec2i_t * src, uint32_t count)
@@ -63,8 +61,6 @@ mn_result_t mn_abs_vec2i_neon(mn_vec2i_t * dst, mn_vec2i_t * src, uint32_t count
         ,
         n_rest =  vabsq_i32(n_rest);
     );
-
-    return MN_SUCCESS;
 }
 
 
