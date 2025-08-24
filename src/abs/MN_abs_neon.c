@@ -2,7 +2,6 @@
 #include "MN_macro.h"
 #include <arm_neon.h>
 #include <assert.h>
-#include <math.h>
 
 /*
 Input Arguments:
