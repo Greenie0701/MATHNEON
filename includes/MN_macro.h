@@ -112,6 +112,34 @@ Notes:
         } \
     } \
 }
+
+#define MN_ABS_DstSrc_OPERATION_VEC2F_NEON(loopCode1, loopCode2) { \
+   ne10_result_t res = MN_OK; \
+   float32x4_t n_src; \
+   float32x4_t n_dst; \
+   int dif = count % 2; \
+   for (; count > dif; count -= 2) { \
+    loopCode1; \
+   } \
+   if ( 0 != dif ) { \
+    loopCode2; \
+   } \
+   return res; \
+}
+
+#define MN_ABS_DstSrc_OPERATION_VEC2I_NEON(loopCode1, loopCode2) { \
+   ne10_result_t res = MN_OK; \
+   int32x4_t n_src; \
+   int32x4_t n_dst; \
+   int dif = count % 2; \
+   for (; count > dif; count -= 2) { \
+    loopCode1; \
+   } \
+   if ( 0 != dif ) { \
+    loopCode2; \
+   } \
+   return res; \
+}
 /*
     2. MN_MAINLOOP_FLOAT/INT32_NEON_ABS
        -------------------------------
@@ -135,6 +163,22 @@ Notes:
     src += 4; \
     dst += 4; \
 }
+
+#define MN_ABS_DstSrc_MAINLOOP_VEC2F_NEON(loopCode) { \
+     n_src = vld1q_f32( (float32_t*)src ); /* load two vectors */ \
+     src += 2; /* move to the next two vectors */ \
+     loopCode; /* actual operation */ /* The main loop iterates through two 2D vectors each time */ \
+     vst1q_f32 ( (float32_t*)dst , n_dst ); /* store back */ \
+     dst += 2; /* move to the next 2 vectors */ \
+}
+
+#define MN_ABS_DstSrc_MAINLOOP_VEC2I_NEON(loopCode) { \
+     n_src = vld1q_s32( (int32_t*)src ); /* load two vectors */ \
+     src += 2; /* move to the next two vectors */ \
+     loopCode; /* actual operation */ /* The main loop iterates through two 2D vectors each time */ \
+     vst1q_s32 ( (int32_t*)dst , n_dst ); /* store back */ \
+     dst += 2; /* move to the next 2 vectors */ \
+}
 /*
     3. MN_SECONDLOOP_FLOAT/INT32_ABS
        ----------------------------
@@ -150,6 +194,19 @@ Notes:
     *dst++ = abs(*src++); \
 }
 
+#define MN_ABS_DstSrc_SECONDLOOP_VEC2F_NEON(loopCode) { \
+     float32x2_t n_rest; \
+     n_rest = vld1_f32( (float32_t*)src  ); \
+     loopCode; /* exceptional cases where the count isn't a multiple of 2 */ \
+     vst1_f32( (float32_t*)dst, n_rest); \
+}
+
+#define MN_ABS_DstSrc_SECONDLOOP_VEC2I_NEON(loopCode) { \
+     int32x2_t n_rest; \
+     n_rest = vld1_s32( (int32_t*)src  ); \
+     loopCode; /* exceptional cases where the count isn't a multiple of 2 */ \
+     vst1_s32( (int32_t*)dst, n_rest); \
+}
 // -----------------------------------------------------------------------------
 // End of header guards
 // -----------------------------------------------------------------------------
