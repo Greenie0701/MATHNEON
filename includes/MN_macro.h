@@ -58,11 +58,12 @@ extern "C" {
             MN-style Macros for Absolute Value (fabs) Operations
 ===========================================================================
 These macros provide a convenient NEON-accelerated implementation for
-computing the absolute value of float arrays. They handle both
+computing the absolute value of float/int32 arrays. They handle both
 SIMD vectorized processing for performance and leftover elements
-when the number of floats is not a multiple of 4.
+when the number of floats/int32 is not a multiple of 4.
 Notes:
-- These macros are intended for single-precision floating point (float32) arrays.
+- These macros are intended for single-precision floating point (float32) 
+  and int32 arrays.
 - They follow the MN style of separating SIMD main loop and scalar leftover loop.
 - Using these macros ensures consistent SIMD processing while safely handling arrays
   whose length is not divisible by 4.
@@ -70,13 +71,13 @@ Notes:
 */
 
 /*
-    1. MN_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2)
+    1. MN_DstSrc_DO_COUNT_TIMES_FLOAT/INT32_NEON(loopCode1, loopCode2)
        ---------------------------------------------------------------
        - Main macro that drives the loop over 'count' elements.
-       - loopCode1: Code to process a block of 4 floats using NEON.
-       - loopCode2: Code to process remaining floats (1-3) when count % 4 != 0.
+       - loopCode1: Code to process a block of 4 floats/int32 using NEON.
+       - loopCode2: Code to process remaining floats/int32 (1-3) when count % 4 != 0.
        - Automatically handles pointer checking (MN_ASSERT_DS) and loop division.
-       - Example usage:
+       - Example usage for float:
             MN_ABS_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(
                 MN_MAINLOOP_FLOAT_NEON_ABS,   // SIMD block
                 MN_SECONDLOOP_FLOAT_ABS       // leftover elements
@@ -96,13 +97,28 @@ Notes:
         } \
     } \
 }
+
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_INT32_NEON(loopCode1, loopCode2) { \
+    MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
+    int32x4_t n_src; \
+    int32x4_t n_dst; \
+    int dif = count % 4; /* finds remaining elements if not multiple of 4 */ \
+    for (; count > dif; count -= 4) { \
+        loopCode1; \
+    } \
+    if (dif != 0) { \
+        for (unsigned int idx = 0; idx < dif; idx++) { \
+            loopCode2; \
+        } \
+    } \
+}
 /*
-    2. MN_MAINLOOP_FLOAT_NEON_ABS
+    2. MN_MAINLOOP_FLOAT/INT32_NEON_ABS
        -------------------------------
-       - Loads 4 float32 values from memory using vld1q_f32.
-       - Computes absolute values in parallel using vabsq_f32.
-       - Stores the results back using vst1q_f32.
-       - Advances the source and destination pointers by 4 floats.
+       - Loads 4 values from memory
+       - Computes absolute values in parallel
+       - Stores the results back 
+       - Advances the source and destination pointers by 4.
 */
 #define MN_MAINLOOP_FLOAT_NEON_ABS { \
     n_src = vld1q_f32((float32_t*)src); /* load 4 floats */ \
@@ -111,15 +127,27 @@ Notes:
     src += 4; \
     dst += 4; \
 }
+
+#define MN_MAINLOOP_INT32_NEON_ABS { \
+    n_src = vld1q_s32((float32_t*)src); /* load 4 int 32-bit elements */ \
+    n_dst = vabsq_s32(n_src);           /* compute abs */ \
+    vst1q_s32((float32_t*)dst, n_dst); /* store back */ \
+    src += 4; \
+    dst += 4; \
+}
 /*
-    3. MN_SECONDLOOP_FLOAT_ABS
+    3. MN_SECONDLOOP_FLOAT/INT32_ABS
        ----------------------------
-       - Handles leftover scalar elements (1-3 floats) when count % 4 != 0.
+       - Handles leftover scalar elements (1-3 floats/int32) when count % 4 != 0.
        - Computes absolute value using the standard C function fabsf.
-       - Advances source and destination pointers by 1 float per iteration.
+       - Advances source and destination pointers by 1 float/int32 per iteration.
 */
 #define MN_SECONDLOOP_FLOAT_ABS { \
     *dst++ = fabsf(*src++); \
+}
+
+#define MN_SECONDLOOP_INT32_ABS { \
+    *dst++ = fabs(*src++); \
 }
 
 // -----------------------------------------------------------------------------
