@@ -35,8 +35,8 @@ int main(void)
     }
 
     // Call MN int and float routines
-    MN_abs_float_neon(dst_f, src_f, count);
-    MN_abs_int_neon(dst_i, src_i, count);
+    mn_abs_float_neon(dst_f, src_f, count);
+    mn_abs_int_neon(dst_i, src_i, count);
 
     // Validate the results with standard implementations
     for (int i = 0; i < count; i++)
