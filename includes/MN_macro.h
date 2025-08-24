@@ -114,7 +114,7 @@ Notes:
 }
 
 #define MN_ABS_DstSrc_OPERATION_VEC2F_NEON(loopCode1, loopCode2) { \
-   ne10_result_t res = MN_OK; \
+   mn_result_t res = MN_OK; \
    float32x4_t n_src; \
    float32x4_t n_dst; \
    int dif = count % 2; \
@@ -128,7 +128,7 @@ Notes:
 }
 
 #define MN_ABS_DstSrc_OPERATION_VEC2I_NEON(loopCode1, loopCode2) { \
-   ne10_result_t res = MN_OK; \
+   mn_result_t res = MN_OK; \
    int32x4_t n_src; \
    int32x4_t n_dst; \
    int dif = count % 2; \
