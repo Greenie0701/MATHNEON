@@ -25,21 +25,43 @@ Intrinsics used:
                 Used here for leftover elements when count is not a multiple of 4.
 */
 
-mn_result_t mn_abs_float_neon(mn_float32_t * dst, mn_float32_t * src, mn_uint32_t count)
+mn_result_t mn_abs_float_neon(mn_float32_t * dst, mn_float32_t * src, uint32_t count)
 {
-    MN_ABS_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(
-        MN_MAINLOOP_FLOAT_NEON_ABS,  /* SIMD main loop */
+    MN_ABS_DstSrc_DO_COUNT_TIMES_FLOAT_NEON( /*TO DO - Remove loop logic and replace it by actual neon abs*/
+        MN_MAINLOOP_FLOAT_NEON_ABS,  /* SIMD main loop */ 
         MN_SECONDLOOP_FLOAT_ABS      /* leftover elements */
     );
 
     return MN_SUCCESS;
 }
 
-mn_result_t mn_abs_int32_neon(mn_int32_t * dst, mn_int32_t * src, mn_uint32_t count)
+mn_result_t mn_abs_int32_neon(mn_int32_t * dst, mn_int32_t * src, uint32_t count)
 {
-    MN_ABS_DstSrc_DO_COUNT_TIMES_INT32_NEON(
-        MN_MAINLOOP_INT32_NEON_ABS,  /* SIMD main loop */
+    MN_ABS_DstSrc_DO_COUNT_TIMES_INT32_NEON( /*TO DO - Remove loop logic and replace it by actual neon abs*/
+        MN_MAINLOOP_INT32_NEON_ABS,  /* SIMD main loop */ 
         MN_SECONDLOOP_INT32_ABS      /* leftover elements */
+    );
+
+    return MN_SUCCESS;
+}
+
+mn_result_t mn_abs_vec2f_neon(mn_vec2f_t * dst, mn_vec2f_t * src, uint32_t count)
+{
+    MN_ABS_DstSrc_DO_COUNT_TIMES_VEC2F_NEON(
+        n_dst  =  vabsq_f32(n_src);
+        ,
+        n_rest =  vabsq_f32(n_rest);
+    );
+
+    return MN_SUCCESS;
+}
+
+mn_result_t mn_abs_vec2i_neon(mn_vec2i_t * dst, mn_vec2i_t * src, uint32_t count)
+{
+    MN_ABS_DstSrc_DO_COUNT_TIMES_VEC2I_NEON(
+        n_dst  =  vabsq_i32(n_src);
+        ,
+        n_rest =  vabsq_i32(n_rest);
     );
 
     return MN_SUCCESS;
