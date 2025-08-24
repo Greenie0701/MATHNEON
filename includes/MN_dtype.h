@@ -21,6 +21,7 @@ typedef uint32_t mn_uint32_t;
 /////////////////////////////////////////////////////////
 #define MN_SUCCESS 0
 #define MN_ERROR -1
+#define MN_OK MN_SUCCESS
 
 /**
  * @brief A 2-tuple of mn_int32_t values.
