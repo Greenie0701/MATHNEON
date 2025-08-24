@@ -83,6 +83,7 @@ Notes:
                 MN_SECONDLOOP_FLOAT_ABS       // leftover elements
             );
 */
+
 #define MN_ABS_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
     MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
     float32x4_t n_src; \
@@ -139,6 +140,14 @@ Notes:
     loopCode2; \
    } \
    return res; \
+}
+
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC2F_NEON(loopCode1, loopCode2) { \
+    MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
+    MN_ABS_DstSrc_OPERATION_VEC2F_NEON(  \
+        MN_ABS_DstSrc_MAINLOOP_VEC2F_NEON(loopCode1); , \
+        MN_ABS_DstSrc_SECONDLOOP_VEC2F_NEON(loopCode2); \
+    ); \
 }
 /*
     2. MN_MAINLOOP_FLOAT/INT32_NEON_ABS
