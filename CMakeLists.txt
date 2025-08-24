@@ -4,8 +4,8 @@ project(MATHNEON C)
 
 include_directories(${PROJECT_SOURCE_DIR}/includes)
 
-set(SOURCES
-    src/abs/MN_abs.c
+file(GLOB_RECURSE SOURCES
+    ${PROJECT_SOURCE_DIR}/src/*.c
 )
 
 add_library(MATHNEON STATIC ${SOURCES})
