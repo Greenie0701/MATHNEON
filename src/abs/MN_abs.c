@@ -15,7 +15,7 @@ Function Input:
 
 mn_result_t mn_abs_int_c (mn_int32_t * dst, mn_int32_t * src, mn_uint32_t count)
 {
-    MN_ASSERT_DS
+    MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[itr] = abs (src[itr]);
@@ -25,7 +25,7 @@ mn_result_t mn_abs_int_c (mn_int32_t * dst, mn_int32_t * src, mn_uint32_t count)
 
 mn_result_t mn_abs_vec2i_c (mn_vec2i_t * dst, mn_vec2i_t * src, mn_uint32_t count)
 {
-    MN_ASSERT_DS
+    MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = abs (src[ itr ].x);
@@ -36,7 +36,7 @@ mn_result_t mn_abs_vec2i_c (mn_vec2i_t * dst, mn_vec2i_t * src, mn_uint32_t coun
 
 mn_result_t mn_abs_vec3i_c (mn_vec3i_t * dst, mn_vec3i_t * src, mn_uint32_t count)
 {
-    MN_ASSERT_DS
+    MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = abs (src[ itr ].x);
@@ -48,7 +48,7 @@ mn_result_t mn_abs_vec3i_c (mn_vec3i_t * dst, mn_vec3i_t * src, mn_uint32_t coun
 
 mn_result_t mn_abs_vec4i_c (mn_vec4i_t * dst, mn_vec4i_t * src, mn_uint32_t count)
 {
-    MN_ASSERT_DS
+    MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = abs (src[ itr ].x);
@@ -61,7 +61,7 @@ mn_result_t mn_abs_vec4i_c (mn_vec4i_t * dst, mn_vec4i_t * src, mn_uint32_t coun
 
 mn_result_t mn_abs_float_c (mn_float32_t * dst, mn_float32_t * src, mn_uint32_t count)
 {
-    MN_ASSERT_DS
+    MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[itr] = fabsf (src[itr]);
@@ -71,7 +71,7 @@ mn_result_t mn_abs_float_c (mn_float32_t * dst, mn_float32_t * src, mn_uint32_t 
 
 mn_result_t mn_abs_vec2f_c (mn_vec2f_t * dst, mn_vec2f_t * src, mn_uint32_t count)
 {
-    MN_ASSERT_DS
+    MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = fabsf (src[ itr ].x);
@@ -82,7 +82,7 @@ mn_result_t mn_abs_vec2f_c (mn_vec2f_t * dst, mn_vec2f_t * src, mn_uint32_t coun
 
 mn_result_t mn_abs_vec3f_c (mn_vec3f_t * dst, mn_vec3f_t * src, mn_uint32_t count)
 {
-    MN_ASSERT_DS
+    MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = fabsf (src[ itr ].x);
@@ -94,7 +94,7 @@ mn_result_t mn_abs_vec3f_c (mn_vec3f_t * dst, mn_vec3f_t * src, mn_uint32_t coun
 
 mn_result_t mn_abs_vec4f_c (mn_vec4f_t * dst, mn_vec4f_t * src, mn_uint32_t count)
 {
-    MN_ASSERT_DS
+    MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = fabsf (src[ itr ].x);
