@@ -166,7 +166,7 @@ Notes:
 }
 
 #define MN_MAINLOOP_INT32_NEON_ABS { \
-    n_src = vld1q_s32((float32_t*)src); /* load 4 int 32-bit elements */ \
+    n_src = vld1q_s32((int32_t*)src); /* load 4 int 32-bit elements */ \
     n_dst = vabsq_s32(n_src);           /* compute abs */ \
     vst1q_s32((float32_t*)dst, n_dst); /* store back */ \
     src += 4; \
