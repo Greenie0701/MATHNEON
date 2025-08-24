@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,6 +28,7 @@ extern "C" {
  * Both dst and src are cast to (const char*) for byte-wise pointer arithmetic.
  * The overlap check accounts for the size of the pointed-to type.
  */
+
 #define MN_CHECK_DstSRC \
     do { \
         const char* dst_bytes = (const char*)(dst); \
@@ -50,6 +52,75 @@ extern "C" {
  * @endcode
  */
 #define MN_ASSERT_DS MN_CHECK_DstSRC
+
+/*
+===========================================================================
+            MN-style Macros for Absolute Value (fabs) Operations
+===========================================================================
+These macros provide a convenient NEON-accelerated implementation for
+computing the absolute value of float arrays. They handle both
+SIMD vectorized processing for performance and leftover elements
+when the number of floats is not a multiple of 4.
+Notes:
+- These macros are intended for single-precision floating point (float32) arrays.
+- They follow the MN style of separating SIMD main loop and scalar leftover loop.
+- Using these macros ensures consistent SIMD processing while safely handling arrays
+  whose length is not divisible by 4.
+===========================================================================
+*/
+
+/*
+    1. MN_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2)
+       ---------------------------------------------------------------
+       - Main macro that drives the loop over 'count' elements.
+       - loopCode1: Code to process a block of 4 floats using NEON.
+       - loopCode2: Code to process remaining floats (1-3) when count % 4 != 0.
+       - Automatically handles pointer checking (MN_ASSERT_DS) and loop division.
+       - Example usage:
+            MN_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(
+                MN_MAINLOOP_FLOAT_NEON_ABS,   // SIMD block
+                MN_SECONDLOOP_FLOAT_ABS       // leftover elements
+            );
+*/
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
+    MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
+    float32x4_t n_src; \
+    float32x4_t n_dst; \
+    int dif = count % 4; /* finds remaining elements if not multiple of 4 */ \
+    for (; count > dif; count -= 4) { \
+        loopCode1; \
+    } \
+    if (dif != 0) { \
+        for (unsigned int idx = 0; idx < dif; idx++) { \
+            loopCode2; \
+        } \
+    } \
+}
+/*
+    2. MN_MAINLOOP_FLOAT_NEON_ABS
+       -------------------------------
+       - Loads 4 float32 values from memory using vld1q_f32.
+       - Computes absolute values in parallel using vabsq_f32.
+       - Stores the results back using vst1q_f32.
+       - Advances the source and destination pointers by 4 floats.
+*/
+#define MN_MAINLOOP_FLOAT_NEON_ABS { \
+    n_src = vld1q_f32((float32_t*)src); /* load 4 floats */ \
+    n_dst = vabsq_f32(n_src);           /* compute abs */ \
+    vst1q_f32((float32_t*)dst, n_dst); /* store back */ \
+    src += 4; \
+    dst += 4; \
+}
+/*
+    3. MN_SECONDLOOP_FLOAT_ABS
+       ----------------------------
+       - Handles leftover scalar elements (1-3 floats) when count % 4 != 0.
+       - Computes absolute value using the standard C function fabsf.
+       - Advances source and destination pointers by 1 float per iteration.
+*/
+#define MN_SECONDLOOP_FLOAT_ABS { \
+    *dst++ = fabsf(*src++); \
+}
 
 // -----------------------------------------------------------------------------
 // End of header guards
