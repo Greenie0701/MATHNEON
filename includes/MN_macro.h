@@ -77,7 +77,7 @@ Notes:
        - loopCode2: Code to process remaining floats (1-3) when count % 4 != 0.
        - Automatically handles pointer checking (MN_ASSERT_DS) and loop division.
        - Example usage:
-            MN_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(
+            MN_ABS_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(
                 MN_MAINLOOP_FLOAT_NEON_ABS,   // SIMD block
                 MN_SECONDLOOP_FLOAT_ABS       // leftover elements
             );
