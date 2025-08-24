@@ -15,7 +15,7 @@ extern "C" {
  * @param src  Source buffer.
  * @param count Number of elements.
  */
-mn_result_t MN_abs_float_neon(float *dst, const float *src, size_t count);
+mn_result_t mn_abs_float_neon(float *dst, const float *src, size_t count);
 
 /**
  * @brief Computes absolute value of int array using NEON.
@@ -24,7 +24,7 @@ mn_result_t MN_abs_float_neon(float *dst, const float *src, size_t count);
  * @param src  Source buffer.
  * @param count Number of elements.
  */
-mn_result_t MN_abs_int_neon(int *dst, const int *src, size_t count);
+mn_result_t mn_abs_int_neon(int *dst, const int *src, size_t count);
 
 #ifdef __cplusplus
 }
