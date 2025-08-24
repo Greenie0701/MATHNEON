@@ -12,7 +12,8 @@ Function Input:
     abs   - Calculates the absolute value of the integer argument. Refer to MSVC Docs(https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/abs-labs-llabs-abs64?view=msvc-170)
  */
 
-MN_result_t MN_abs_int_c (MN_int32_t * dst, MN_int32_t * src, MN_uint32_t count)
+
+mn_result_t mn_abs_int_c (mn_int32_t * dst, mn_int32_t * src, mn_uint32_t count)
 {
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
@@ -21,7 +22,7 @@ MN_result_t MN_abs_int_c (MN_int32_t * dst, MN_int32_t * src, MN_uint32_t count)
     return MN_SUCCESS;
 }
 
-MN_result_t MN_abs_vec2i_c (MN_vec2i_t * dst, MN_vec2i_t * src, MN_uint32_t count)
+mn_result_t mn_abs_vec2i_c (mn_vec2i_t * dst, mn_vec2i_t * src, mn_uint32_t count)
 {
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
@@ -31,7 +32,7 @@ MN_result_t MN_abs_vec2i_c (MN_vec2i_t * dst, MN_vec2i_t * src, MN_uint32_t coun
     return MN_SUCCESS;
 }
 
-MN_result_t MN_abs_vec3i_c (MN_vec3i_t * dst, MN_vec3i_t * src, MN_uint32_t count)
+mn_result_t mn_abs_vec3i_c (mn_vec3i_t * dst, mn_vec3i_t * src, mn_uint32_t count)
 {
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
@@ -42,7 +43,7 @@ MN_result_t MN_abs_vec3i_c (MN_vec3i_t * dst, MN_vec3i_t * src, MN_uint32_t coun
     return MN_SUCCESS;
 }
 
-MN_result_t MN_abs_vec4i_c (MN_vec4i_t * dst, MN_vec4i_t * src, MN_uint32_t count)
+mn_result_t mn_abs_vec4i_c (mn_vec4i_t * dst, mn_vec4i_t * src, mn_uint32_t count)
 {
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
@@ -54,7 +55,7 @@ MN_result_t MN_abs_vec4i_c (MN_vec4i_t * dst, MN_vec4i_t * src, MN_uint32_t coun
     return MN_SUCCESS;
 }
 
-MN_result_t MN_abs_float_c (MN_float32_t * dst, MN_float32_t * src, MN_uint32_t count)
+mn_result_t mn_abs_float_c (mn_float32_t * dst, mn_float32_t * src, mn_uint32_t count)
 {
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
@@ -63,7 +64,7 @@ MN_result_t MN_abs_float_c (MN_float32_t * dst, MN_float32_t * src, MN_uint32_t 
     return MN_SUCCESS;
 }
 
-MN_result_t MN_abs_vec2f_c (MN_vec2f_t * dst, MN_vec2f_t * src, MN_uint32_t count)
+mn_result_t mn_abs_vec2f_c (mn_vec2f_t * dst, mn_vec2f_t * src, mn_uint32_t count)
 {
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
@@ -73,7 +74,7 @@ MN_result_t MN_abs_vec2f_c (MN_vec2f_t * dst, MN_vec2f_t * src, MN_uint32_t coun
     return MN_SUCCESS;
 }
 
-MN_result_t MN_abs_vec3f_c (MN_vec3f_t * dst, MN_vec3f_t * src, MN_uint32_t count)
+mn_result_t mn_abs_vec3f_c (mn_vec3f_t * dst, mn_vec3f_t * src, mn_uint32_t count)
 {
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
@@ -84,7 +85,7 @@ MN_result_t MN_abs_vec3f_c (MN_vec3f_t * dst, MN_vec3f_t * src, MN_uint32_t coun
     return MN_SUCCESS;
 }
 
-MN_result_t MN_abs_vec4f_c (MN_vec4f_t * dst, MN_vec4f_t * src, MN_uint32_t count)
+mn_result_t mn_abs_vec4f_c (mn_vec4f_t * dst, mn_vec4f_t * src, mn_uint32_t count)
 {
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
