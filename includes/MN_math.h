@@ -1,6 +1,7 @@
 #ifndef MN_MATH_H
 #define MN_MATH_H
 
+#include "MN_dtype.h"
 #include <stddef.h>   // for size_t
 
 #ifdef __cplusplus
@@ -14,7 +15,7 @@ extern "C" {
  * @param src  Source buffer.
  * @param count Number of elements.
  */
-void MN_abs_float_neon(float *dst, const float *src, size_t count);
+mn_result_t MN_abs_float_neon(float *dst, const float *src, size_t count);
 
 /**
  * @brief Computes absolute value of int array using NEON.
@@ -23,7 +24,7 @@ void MN_abs_float_neon(float *dst, const float *src, size_t count);
  * @param src  Source buffer.
  * @param count Number of elements.
  */
-void MN_abs_int_neon(int *dst, const int *src, size_t count);
+mn_result_t MN_abs_int_neon(int *dst, const int *src, size_t count);
 
 #ifdef __cplusplus
 }
