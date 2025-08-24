@@ -5,64 +5,55 @@
 #include "../includes/MN_macro.h"
 #include "../src/abs/MN_abs_neon.c" // or link against built object
 
-// Reference scalar ABS for float
-static void ref_abs_float(float *dst, const float *src, unsigned int count)
-{
-    for (unsigned int i = 0; i < count; i++)
-        dst[i] = fabsf(src[i]);
-}
-
-// Reference scalar ABS for int
-static void ref_abs_int(int *dst, const int *src, unsigned int count)
-{
-    for (unsigned int i = 0; i < count; i++)
-        dst[i] = abs(src[i]);
-}
-
 int main(void)
 {
-    // Example sizes to test
-    const unsigned int count = 10;
+    int count = 16; 
 
-    // Allocate arrays
-    float src_f[count], dst_f[count], ref_f[count];
-    int   src_i[count], dst_i[count], ref_i[count];
+    // Allocate dynamically instead of Variable Length Arrays (VLA), MSVC doesn't supports VLA
+    float* src_f = (float*)malloc(sizeof(float) * count);
+    float* dst_f = (float*)malloc(sizeof(float) * count);
+    float* ref_f = (float*)malloc(sizeof(float) * count);
 
-    // Fill inputs with positive + negative numbers
-    for (unsigned int i = 0; i < count; i++)
+    int* src_i = (int*)malloc(sizeof(int) * count);
+    int* dst_i = (int*)malloc(sizeof(int) * count);
+    int* ref_i = (int*)malloc(sizeof(int) * count);
+
+    if (!src_f || !dst_f || !ref_f || !src_i || !dst_i || !ref_i)
     {
-        src_f[i] = (i % 2 == 0) ? -(float)i * 1.1f : (float)i * 1.1f;
-        src_i[i] = (i % 2 == 0) ? -(int)i : (int)i;
+        fprintf(stderr, "malloc failed!\n");
+        return 1;
     }
 
-    // Run NEON versions
-    mn_abs_float_neon(dst_f, src_f, count);
-    mn_abs_int32_neon(dst_i, src_i, count);
-
-    // Run scalar reference
-    ref_abs_float(ref_f, src_f, count);
-    ref_abs_int(ref_i, src_i, count);
-
-    // Validate
-    int pass = 1;
-    for (unsigned int i = 0; i < count; i++)
+    // Fill input with test values
+    for (int i = 0; i < count; i++)
     {
-        if (fabsf(dst_f[i] - ref_f[i]) > 1e-6f)
+        src_f[i] = (i % 2 == 0 ? -1.0f : 1.0f) * (float)i;
+        ref_f[i] = fabsf(src_f[i]);
+
+        src_i[i] = (i % 2 == 0 ? -1 : 1) * i;
+        ref_i[i] = abs(src_i[i]);
+    }
+
+    // Call MN int and float routines
+    MN_abs_float_neon(dst_f, src_f, count);
+    MN_abs_int_neon(dst_i, src_i, count);
+
+    // Validate the results with standard implementations
+    for (int i = 0; i < count; i++)
+    {
+        if (fabsf(dst_f[i] - ref_f[i]) > 1e-6f || dst_i[i] != ref_i[i])
         {
-            printf("Float mismatch at %u: got %f expected %f\n", i, dst_f[i], ref_f[i]);
-            pass = 0;
-        }
-        if (dst_i[i] != ref_i[i])
-        {
-            printf("Int mismatch at %u: got %d expected %d\n", i, dst_i[i], ref_i[i]);
-            pass = 0;
+            printf("Test failed at index %d\n", i);
+            free(src_f); free(dst_f); free(ref_f);
+            free(src_i); free(dst_i); free(ref_i);
+            return 1;
         }
     }
 
-    if (pass)
-        printf("All ABS NEON tests PASSED!\n");
-    else
-        printf("Some ABS NEON tests FAILED!\n");
+    printf("All abs tests passed!\n");
 
-    return pass ? 0 : 1;
+    free(src_f); free(dst_f); free(ref_f);
+    free(src_i); free(dst_i); free(ref_i);
+
+    return 0;
 }
