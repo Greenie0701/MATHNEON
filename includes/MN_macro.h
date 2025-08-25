@@ -259,37 +259,40 @@ Notes:
      dst += 2; /* move to the next 2 vectors */ \
 }
 
-#define MN_ABS_DstSrc_MAINLOOP_VEC3F_NEON(loopCode) { \
-    n_src1 = vld1q_f32( (float32_t*)src ); \
-    src = ((void*)src)+(4*sizeof(mn_float32_t)); \
-    n_src2 = vld1q_f32( (float32_t*)src ); \
-    src = ((void*)src)+(4*sizeof(mn_float32_t)); \
-    n_src3 = vld1q_f32( (float32_t*)src ); \
-    src = ((void*)src)+(4*sizeof(mn_float32_t)); \
-    loopCode; /* The main loop iterates through three 3D vectors each time */ \
-    vst1q_f32 ( (float32_t*)dst , n_dst1 ); \
-    dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
-    vst1q_f32 ( (float32_t*)dst , n_dst2 ); \
-    dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
-    vst1q_f32 ( (float32_t*)dst , n_dst3 ); \
-    dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
- }
+/* TO DO: Study about pointers and add explanation why there is a need for type convertions */
+#define MN_ABS_DstSrc_MAINLOOP_VEC3F_NEON(loopCode) {                                  \
+    n_src1 = vld1q_f32((float32_t*)src);                                               \
+    src = (mn_float32_t*)((char*)src + 4 * sizeof(mn_float32_t));                      \
+    n_src2 = vld1q_f32((float32_t*)src);                                               \
+    src = (mn_float32_t*)((char*)src + 4 * sizeof(mn_float32_t));                      \
+    n_src3 = vld1q_f32((float32_t*)src);                                               \
+    src = (mn_float32_t*)((char*)src + 4 * sizeof(mn_float32_t));                      \
+    loopCode;                                                                          \
+    vst1q_f32((float32_t*)dst, n_dst1);                                                \
+    dst = (mn_float32_t*)((char*)dst + 4 * sizeof(mn_float32_t));                      \
+    vst1q_f32((float32_t*)dst, n_dst2);                                                \
+    dst = (mn_float32_t*)((char*)dst + 4 * sizeof(mn_float32_t));                      \
+    vst1q_f32((float32_t*)dst, n_dst3);                                                \
+    dst = (mn_float32_t*)((char*)dst + 4 * sizeof(mn_float32_t));                      \
+}
 
-#define MN_ABS_DstSrc_MAINLOOP_VEC3I_NEON(loopCode) { \
-    n_src1 = vld1q_s32( (int32_t*)src ); \
-    src = ((void*)src)+(4*sizeof(mn_int32_t)); \
-    n_src2 = vld1q_s32( (int32_t*)src ); \
-    src = ((void*)src)+(4*sizeof(mn_int32_t)); \
-    n_src3 = vld1q_s32( (int32_t*)src ); \
-    src = ((void*)src)+(4*sizeof(mn_int32_t)); \
-    loopCode; /* The main loop iterates through three 3D vectors each time */ \
-    vst1q_s32 ( (int32_t*)dst , n_dst1 ); \
-    dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
-    vst1q_s32 ( (int32_t*)dst , n_dst2 ); \
-    dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
-    vst1q_s32 ( (int32_t*)dst , n_dst3 ); \
-    dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
- }
+
+#define MN_ABS_DstSrc_MAINLOOP_VEC3I_NEON(loopCode) {                                  \
+    n_src1 = vld1q_s32((int32_t*)src);                                                 \
+    src = (mn_int32_t*)((char*)src + 4 * sizeof(mn_int32_t));                          \
+    n_src2 = vld1q_s32((int32_t*)src);                                                 \
+    src = (mn_int32_t*)((char*)src + 4 * sizeof(mn_int32_t));                          \
+    n_src3 = vld1q_s32((int32_t*)src);                                                 \
+    src = (mn_int32_t*)((char*)src + 4 * sizeof(mn_int32_t));                          \
+    loopCode;                                                                          \
+    vst1q_s32((int32_t*)dst, n_dst1);                                                  \
+    dst = (mn_int32_t*)((char*)dst + 4 * sizeof(mn_int32_t));                          \
+    vst1q_s32((int32_t*)dst, n_dst2);                                                  \
+    dst = (mn_int32_t*)((char*)dst + 4 * sizeof(mn_int32_t));                          \
+    vst1q_s32((int32_t*)dst, n_dst3);                                                  \
+    dst = (mn_int32_t*)((char*)dst + 4 * sizeof(mn_int32_t));                          \
+}
+
 /*
     3. MN_SECONDLOOP_FLOAT/INT32_ABS
        ----------------------------
@@ -319,8 +322,7 @@ Notes:
 
 
 #define MN_ABS_DstSrc_SECONDLOOP_VEC3F_NEON(loopCode) { \
-     float32x2x3_t n_rest = FLOAT32_2x3( \
-       0.0f, 0.0f, 0.0f , 0.0f, 0.0f , 0.0f); \
+     float32x2x3_t n_rest; \
      n_rest = vld3_lane_f32 ( (float32_t*)src, n_rest, 0); \
      loopCode; /* exceptional cases where the count isn't a multiple of 3 */ \
      vst3_lane_f32( (float32_t*)dst, n_rest, 0); \
@@ -329,8 +331,7 @@ Notes:
 }
 
 #define MN_ABS_DstSrc_SECONDLOOP_VEC3I_NEON(loopCode) { \
-     int32x2x3_t n_rest = INT32_2x3( \
-       0, 0, 0 , 0, 0 , 0); \
+     int32x2x3_t n_rest; \
      n_rest = vld3_lane_s32 ( (int32_t*)src, n_rest, 0); \
      loopCode; /* exceptional cases where the count isn't a multiple of 3 */ \
      vst3_lane_s32( (int32_t*)dst, n_rest, 0); \
