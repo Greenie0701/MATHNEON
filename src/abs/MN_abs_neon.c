@@ -25,6 +25,8 @@ Intrinsics used:
         vst1q_s32 - NEON intrinsic to store 4 int32 values back to memory
         fabs - Standard C library function that calculates the absolute value of a single integer.
                 Used here for leftover elements when count is not a multiple of 4.
+
+Supported routines: Int and Float 32-bit data types [1 to 4 Dimensional arrays]
 */
 
 mn_result_t mn_abs_float_neon(mn_float32_t * dst, mn_float32_t * src, uint32_t count)
@@ -65,4 +67,30 @@ mn_result_t mn_abs_vec2i_neon(mn_vec2i_t * dst, mn_vec2i_t * src, uint32_t count
     );
 }
 
+mn_result_t mn_abs_vec3f_neon (mn_vec3f_t * dst, mn_vec3f_t * src, uint32_t count)
+{
+    MN_ABS_DstSrc_DO_COUNT_TIMES_VEC3F_NEON
+    (
+        n_dst1 = vabsq_f32 (n_src1);
+        n_dst2 = vabsq_f32 (n_src2);
+        n_dst3 = vabsq_f32 (n_src3);
+        ,
+        n_rest.val[0] = vabs_f32 (n_rest.val[0]);   /* the X lane */
+        n_rest.val[1] = vabs_f32 (n_rest.val[1]);   /* the Y lane */
+        n_rest.val[2] = vabs_f32 (n_rest.val[2]);   /* the Z lane */
+    );
+}
 
+mn_result_t mn_abs_vec3i_neon (mn_vec3i_t * dst, mn_vec3i_t * src, uint32_t count)
+{
+    MN_ABS_DstSrc_DO_COUNT_TIMES_VEC3I_NEON
+    (
+        n_dst1 = vabsq_i32 (n_src1);
+        n_dst2 = vabsq_i32 (n_src2);
+        n_dst3 = vabsq_i32 (n_src3);
+        ,
+        n_rest.val[0] = vabs_i32 (n_rest.val[0]);   /* the X lane */
+        n_rest.val[1] = vabs_i32 (n_rest.val[1]);   /* the Y lane */
+        n_rest.val[2] = vabs_i32 (n_rest.val[2]);   /* the Z lane */
+    );
+}
