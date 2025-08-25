@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+/*
+  TO DO: Extern C implementation for MN ABS
+*/
 /**
  * @brief Computes absolute value of float array using NEON.
  *
