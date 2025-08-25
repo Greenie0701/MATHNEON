@@ -5,6 +5,7 @@
 #include "../includes/MN_macro.h"
 #include "../src/abs/MN_abs_neon.c"
 
+/* TO DO Remove standard fabs calls with C implementation of MN abs */
 int main(void)
 {
     int count = 16;
