@@ -17,6 +17,7 @@ extern "C" {
  */
 mn_result_t mn_abs_float_neon(mn_float32_t *dst, const mn_float32_t *src, size_t count);
 mn_result_t mn_abs_vec2f_neon(mn_vec2f_t *dst, const mn_vec2f_t *src, size_t count);
+mn_result_t mn_abs_vec3f_neon(mn_vec3f_t *dst, const mn_vec3f_t *src, size_t count);
 
 /**
  * @brief Computes absolute value of int array using NEON.
@@ -27,6 +28,7 @@ mn_result_t mn_abs_vec2f_neon(mn_vec2f_t *dst, const mn_vec2f_t *src, size_t cou
  */
 mn_result_t mn_abs_int32_neon(mn_int32_t *dst, const mn_int32_t *src, size_t count);
 mn_result_t mn_abs_vec2i_neon(mn_vec2i_t *dst, const mn_vec2i_t *src, size_t count);
+mn_result_t mn_abs_vec3i_neon(mn_vec3i_t *dst, const mn_vec3i_t *src, size_t count);
 
 #ifdef __cplusplus
 }
