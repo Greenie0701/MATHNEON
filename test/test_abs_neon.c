@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../includes/MN_dtype.h"   // mn_vec2f_t, mn_vec2i_t
+#include "../includes/MN_dtype.h" 
 #include "../includes/MN_macro.h"
-#include "../src/abs/MN_abs_neon.c" // or better: link object/lib
+#include "../src/abs/MN_abs_neon.c"
 
 int main(void)
 {
