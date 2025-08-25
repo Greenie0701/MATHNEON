@@ -38,9 +38,19 @@ int main(void)
     mn_vec3i_t* dst_v3i = (mn_vec3i_t*)malloc(sizeof(mn_vec3i_t) * count);
     mn_vec3i_t* ref_v3i = (mn_vec3i_t*)malloc(sizeof(mn_vec3i_t) * count);
 
+    // ===== Vec4 float/int arrays =====
+    mn_vec4f_t* src_v4f = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
+    mn_vec4f_t* dst_v4f = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
+    mn_vec4f_t* ref_v4f = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
+
+    mn_vec4i_t* src_v4i = (mn_vec4i_t*)malloc(sizeof(mn_vec4i_t) * count);
+    mn_vec4i_t* dst_v4i = (mn_vec4i_t*)malloc(sizeof(mn_vec4i_t) * count);
+    mn_vec4i_t* ref_v4i = (mn_vec4i_t*)malloc(sizeof(mn_vec4i_t) * count);
+
     if (!src_f || !dst_f || !ref_f || !src_i || !dst_i || !ref_i ||
         !src_v2f || !dst_v2f || !ref_v2f || !src_v2i || !dst_v2i || !ref_v2i ||
-        !src_v3f || !dst_v3f || !ref_v3f || !src_v3i || !dst_v3i || !ref_v3i)
+        !src_v3f || !dst_v3f || !ref_v3f || !src_v3i || !dst_v3i || !ref_v3i ||
+        !src_v4f || !dst_v4f || !ref_v4f || !src_v4i || !dst_v4i || !ref_v4i)
     {
         fprintf(stderr, "malloc failed!\n");
         return 1;
@@ -84,6 +94,26 @@ int main(void)
         ref_v3i[i].x = abs(src_v3i[i].x);
         ref_v3i[i].y = abs(src_v3i[i].y);
         ref_v3i[i].z = abs(src_v3i[i].z);
+
+        // vec4 float
+        src_v4f[i].x = (i % 2 == 0 ? -1.0f : 1.0f) * (float)(i + 0.1f);
+        src_v4f[i].y = (i % 3 == 0 ? -1.0f : 1.0f) * (float)(i + 1.2f);
+        src_v4f[i].z = (i % 4 == 0 ? -1.0f : 1.0f) * (float)(i + 2.3f);
+        src_v4f[i].w = (i % 5 == 0 ? -1.0f : 1.0f) * (float)(i + 3.4f);
+        ref_v4f[i].x = fabsf(src_v4f[i].x);
+        ref_v4f[i].y = fabsf(src_v4f[i].y);
+        ref_v4f[i].z = fabsf(src_v4f[i].z);
+        ref_v4f[i].w = fabsf(src_v4f[i].w);
+
+        // vec4 int
+        src_v4i[i].x = (i % 2 == 0 ? -1 : 1) * (i + 1000);
+        src_v4i[i].y = (i % 3 == 0 ? -1 : 1) * (i + 2000);
+        src_v4i[i].z = (i % 4 == 0 ? -1 : 1) * (i + 3000);
+        src_v4i[i].w = (i % 5 == 0 ? -1 : 1) * (i + 4000);
+        ref_v4i[i].x = abs(src_v4i[i].x);
+        ref_v4i[i].y = abs(src_v4i[i].y);
+        ref_v4i[i].z = abs(src_v4i[i].z);
+        ref_v4i[i].w = abs(src_v4i[i].w);
     }
 
     // ==== Call NEON routines ====
@@ -93,6 +123,8 @@ int main(void)
     mn_abs_vec2i_neon(dst_v2i, src_v2i, count);
     mn_abs_vec3f_neon(dst_v3f, src_v3f, count);
     mn_abs_vec3i_neon(dst_v3i, src_v3i, count);
+    mn_abs_vec4f_neon(dst_v4f, src_v4f, count);
+    mn_abs_vec4i_neon(dst_v4i, src_v4i, count);
 
     // ==== Validate flat results ====
     for (int i = 0; i < count; i++)
@@ -141,7 +173,29 @@ int main(void)
         }
     }
 
-    printf("All abs tests (flat + vec2 + vec3) passed!\n");
+    // ==== Validate vec4 results ====
+    for (int i = 0; i < count; i++)
+    {
+        if (fabsf(dst_v4f[i].x - ref_v4f[i].x) > 1e-6f ||
+            fabsf(dst_v4f[i].y - ref_v4f[i].y) > 1e-6f ||
+            fabsf(dst_v4f[i].z - ref_v4f[i].z) > 1e-6f ||
+            fabsf(dst_v4f[i].w - ref_v4f[i].w) > 1e-6f)
+        {
+            printf("Vec4f test failed at index %d\n", i);
+            return 1;
+        }
+
+        if (dst_v4i[i].x != ref_v4i[i].x ||
+            dst_v4i[i].y != ref_v4i[i].y ||
+            dst_v4i[i].z != ref_v4i[i].z ||
+            dst_v4i[i].w != ref_v4i[i].w)
+        {
+            printf("Vec4i test failed at index %d\n", i);
+            return 1;
+        }
+    }
+
+    printf("All abs tests (flat + vec2 + vec3 + vec4) passed!\n");
 
     // cleanup
     free(src_f); free(dst_f); free(ref_f);
@@ -150,6 +204,8 @@ int main(void)
     free(src_v2i); free(dst_v2i); free(ref_v2i);
     free(src_v3f); free(dst_v3f); free(ref_v3f);
     free(src_v3i); free(dst_v3i); free(ref_v3i);
+    free(src_v4f); free(dst_v4f); free(ref_v4f);
+    free(src_v4i); free(dst_v4i); free(ref_v4i);
 
     return 0;
 }
