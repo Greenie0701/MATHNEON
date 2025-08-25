@@ -247,7 +247,12 @@ Notes:
      dst += 2; /* move to the next 2 vectors */ \
 }
 
-/* TO DO: Study about pointers and add explanation why there is a need for type convertions */
+/*
+    - Use (char*) for raw byte arithmetic (portable).
+    - Use the original type pointer (float*, int*, etc.) for stepping by elements.
+    - Never do arithmetic on (void*) → non-standard, MSVC rejects it.
+*/
+
 #define MN_ABS_DstSrc_MAINLOOP_VEC3F_NEON(loopCode) {                                  \
     n_src1 = vld1q_f32((float32_t*)src);                                               \
     src = (mn_float32_t*)((char*)src + 4 * sizeof(mn_float32_t));                      \
