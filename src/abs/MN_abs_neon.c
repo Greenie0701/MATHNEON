@@ -94,3 +94,19 @@ mn_result_t mn_abs_vec3i_neon (mn_vec3i_t * dst, mn_vec3i_t * src, uint32_t coun
         n_rest.val[2] = vabs_s32 (n_rest.val[2]);   /* the Z lane */
     );
 }
+
+mn_result_t mn_abs_vec4f_neon (mn_vec4f_t * dst, mn_vec4f_t * src, const mn_vec4f_t * cst, uint32_t count)
+{
+    MN_ABS_DstSrc_DO_COUNT_TIMES_VEC4F_NEON
+    (
+        n_dst = vabsq_f32 (n_src);
+    );
+}
+
+mn_result_t mn_abs_vec4i_neon (mn_vec4i_t * dst, mn_vec4i_t * src, const mn_vec4i_t * cst, uint32_t count)
+{
+    MN_ABS_DstSrc_DO_COUNT_TIMES_VEC4I_NEON
+    (
+        n_dst = vabsq_s32 (n_src);
+    );
+}
