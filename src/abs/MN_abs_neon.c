@@ -95,7 +95,7 @@ mn_result_t mn_abs_vec3i_neon (mn_vec3i_t * dst, mn_vec3i_t * src, uint32_t coun
     );
 }
 
-mn_result_t mn_abs_vec4f_neon (mn_vec4f_t * dst, mn_vec4f_t * src, const mn_vec4f_t * cst, uint32_t count)
+mn_result_t mn_abs_vec4f_neon (mn_vec4f_t * dst, mn_vec4f_t * src, uint32_t count)
 {
     MN_ABS_DstSrc_DO_COUNT_TIMES_VEC4F_NEON
     (
@@ -103,7 +103,7 @@ mn_result_t mn_abs_vec4f_neon (mn_vec4f_t * dst, mn_vec4f_t * src, const mn_vec4
     );
 }
 
-mn_result_t mn_abs_vec4i_neon (mn_vec4i_t * dst, mn_vec4i_t * src, const mn_vec4i_t * cst, uint32_t count)
+mn_result_t mn_abs_vec4i_neon (mn_vec4i_t * dst, mn_vec4i_t * src, uint32_t count)
 {
     MN_ABS_DstSrc_DO_COUNT_TIMES_VEC4I_NEON
     (
