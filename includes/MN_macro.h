@@ -55,7 +55,7 @@ extern "C" {
 /*
 Define 3D specific datatypes
 */
-#define FLOAT32_2x3(x1,y1,x2,y2,x3,y3) \ /* TO DO - Add comments usage for this dtypes */
+#define FLOAT32_2x3(x1,y1,x2,y2,x3,y3) /* TO DO - Add comments for this dtypes */ \
     {{ \
         {x1, y1}, {x2,y2}, {x3,y3} \
     }}
@@ -155,7 +155,7 @@ Notes:
 }
 
 #define MN_ABS_DstSrc_OPERATION_VEC3F_NEON(loopCode1, loopCode2) { \
-  mn_result_t res = mn_OK; \
+  mn_result_t res = MN_OK; \
   float32x4_t n_src1, n_src2, n_src3; \
   float32x4_t n_dst1, n_dst2, n_dst3; \
   int dif = count % 4;  \
@@ -172,7 +172,7 @@ Notes:
  }
 
 #define MN_ABS_DstSrc_OPERATION_VEC3I_NEON(loopCode1, loopCode2) { \
-  mn_result_t res = mn_OK; \
+  mn_result_t res = MN_OK; \
   int32x4_t n_src1, n_src2, n_src3; \
   int32x4_t n_dst1, n_dst2, n_dst3; \
   int dif = count % 4;  \
@@ -238,7 +238,7 @@ Notes:
 #define MN_MAINLOOP_INT32_NEON_ABS { \
     n_src = vld1q_s32((int32_t*)src); /* load 4 int 32-bit elements */ \
     n_dst = vabsq_s32(n_src);           /* compute abs */ \
-    vst1q_s32((float32_t*)dst, n_dst); /* store back */ \
+    vst1q_s32((int32_t*)dst, n_dst); /* store back */ \
     src += 4; \
     dst += 4; \
 }
