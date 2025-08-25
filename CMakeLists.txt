@@ -22,3 +22,9 @@ target_link_libraries(test_abs PRIVATE MATHNEON)
 
 # Register the test
 add_test(NAME test_abs COMMAND test_abs)
+
+# TO DO: 
+    #Add release & debug configs
+    #Auto detect neon support on target machine
+    #Compile sources based on neon support
+    #Add CMake Install setup in to the project
