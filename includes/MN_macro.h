@@ -142,11 +142,69 @@ Notes:
    return res; \
 }
 
+#define MN_ABS_DstSrc_OPERATION_VEC3F_NEON(loopCode1, loopCode2) { \
+  mn_result_t res = mn_OK; \
+  float32x4_t n_src1, n_src2, n_src3; \
+  float32x4_t n_dst1, n_dst2, n_dst3; \
+  int dif = count % 4;  \
+  for (; count > dif; count -= 4) { \
+   loopCode1; \
+  } \
+  if ( 0 != dif ) { \
+    unsigned int idx; \
+    for ( idx = 0 ; idx < dif; idx++ ) { \
+      loopCode2; \
+    } \
+  } \
+  return res; \
+ }
+
+#define MN_ABS_DstSrc_OPERATION_VEC3I_NEON(loopCode1, loopCode2) { \
+  mn_result_t res = mn_OK; \
+  int32x4_t n_src1, n_src2, n_src3; \
+  int32x4_t n_dst1, n_dst2, n_dst3; \
+  int dif = count % 4;  \
+  for (; count > dif; count -= 4) { \
+   loopCode1; \
+  } \
+  if ( 0 != dif ) { \
+    unsigned int idx; \
+    for ( idx = 0 ; idx < dif; idx++ ) { \
+      loopCode2; \
+    } \
+  } \
+  return res; \
+ }
+
 #define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC2F_NEON(loopCode1, loopCode2) { \
     MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
     MN_ABS_DstSrc_OPERATION_VEC2F_NEON(  \
         MN_ABS_DstSrc_MAINLOOP_VEC2F_NEON(loopCode1); , \
         MN_ABS_DstSrc_SECONDLOOP_VEC2F_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC2I_NEON(loopCode1, loopCode2) { \
+    MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
+    MN_ABS_DstSrc_OPERATION_VEC2I_NEON(  \
+        MN_ABS_DstSrc_MAINLOOP_VEC2I_NEON(loopCode1); , \
+        MN_ABS_DstSrc_SECONDLOOP_VEC2I_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC3F_NEON(loopCode1, loopCode2) { \
+    MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
+    MN_ABS_DstSrc_OPERATION_VEC3F_NEON(  \
+        MN_ABS_DstSrc_MAINLOOP_VEC3F_NEON(loopCode1); , \
+        MN_ABS_DstSrc_SECONDLOOP_VEC3F_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC3I_NEON(loopCode1, loopCode2) { \
+    MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
+    MN_ABS_DstSrc_OPERATION_VEC3I_NEON(  \
+        MN_ABS_DstSrc_MAINLOOP_VEC3I_NEON(loopCode1); , \
+        MN_ABS_DstSrc_SECONDLOOP_VEC3I_NEON(loopCode2); \
     ); \
 }
 /*
@@ -188,12 +246,42 @@ Notes:
      vst1q_s32 ( (int32_t*)dst , n_dst ); /* store back */ \
      dst += 2; /* move to the next 2 vectors */ \
 }
+
+#define MN_ABS_DstSrc_MAINLOOP_VEC3F_NEON(loopCode) { \
+    n_src1 = vld1q_f32( (float32_t*)src ); \
+    src = ((void*)src)+(4*sizeof(mn_float32_t)); \
+    n_src2 = vld1q_f32( (float32_t*)src ); \
+    src = ((void*)src)+(4*sizeof(mn_float32_t)); \
+    n_src3 = vld1q_f32( (float32_t*)src ); \
+    src = ((void*)src)+(4*sizeof(mn_float32_t)); \
+    loopCode; /* The main loop iterates through three 3D vectors each time */ \
+    vst1q_f32 ( (float32_t*)dst , n_dst1 ); \
+    dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
+    vst1q_f32 ( (float32_t*)dst , n_dst2 ); \
+    dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
+    vst1q_f32 ( (float32_t*)dst , n_dst3 ); \
+    dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
+ }
+
+#define MN_ABS_DstSrc_MAINLOOP_VEC3I_NEON(loopCode) { \
+    n_src1 = vld1q_s32( (int32_t*)src ); \
+    src = ((void*)src)+(4*sizeof(mn_int32_t)); \
+    n_src2 = vld1q_s32( (int32_t*)src ); \
+    src = ((void*)src)+(4*sizeof(mn_int32_t)); \
+    n_src3 = vld1q_s32( (int32_t*)src ); \
+    src = ((void*)src)+(4*sizeof(mn_int32_t)); \
+    loopCode; /* The main loop iterates through three 3D vectors each time */ \
+    vst1q_s32 ( (int32_t*)dst , n_dst1 ); \
+    dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
+    vst1q_s32 ( (int32_t*)dst , n_dst2 ); \
+    dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
+    vst1q_s32 ( (int32_t*)dst , n_dst3 ); \
+    dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
+ }
 /*
     3. MN_SECONDLOOP_FLOAT/INT32_ABS
        ----------------------------
-       - Handles leftover scalar elements (1-3 floats/int32) when count % 4 != 0.
-       - Computes absolute value using the standard C function fabsf.
-       - Advances source and destination pointers by 1 float/int32 per iteration.
+       - Handles leftover scalar elements (1-3 floats/int32 or vector) when count % 4 != 0.
 */
 #define MN_SECONDLOOP_FLOAT_ABS { \
     *dst++ = fabsf(*src++); \
@@ -223,6 +311,26 @@ Notes:
         MN_ABS_DstSrc_MAINLOOP_VEC2I_NEON(loopCode1); , \
         MN_ABS_DstSrc_SECONDLOOP_VEC2I_NEON(loopCode2); \
     ); \
+}
+
+#define MN_ABS_DstSrc_SECONDLOOP_VEC3F_NEON(loopCode) { \
+     float32x2x3_t n_rest = FLOAT32_2x3( \
+       0.0f, 0.0f, 0.0f , 0.0f, 0.0f , 0.0f); \
+     n_rest = vld3_lane_f32 ( (float32_t*)src, n_rest, 0); \
+     loopCode; /* exceptional cases where the count isn't a multiple of 3 */ \
+     vst3_lane_f32( (float32_t*)dst, n_rest, 0); \
+     src++; \
+     dst++; \
+}
+
+#define MN_ABS_DstSrc_SECONDLOOP_VEC3I_NEON(loopCode) { \
+     int32x2x3_t n_rest = INT32_2x3( \
+       0, 0, 0 , 0, 0 , 0); \
+     n_rest = vld3_lane_s32 ( (int32_t*)src, n_rest, 0); \
+     loopCode; /* exceptional cases where the count isn't a multiple of 3 */ \
+     vst3_lane_s32( (int32_t*)dst, n_rest, 0); \
+     src++; \
+     dst++; \
 }
 // -----------------------------------------------------------------------------
 // End of header guards
