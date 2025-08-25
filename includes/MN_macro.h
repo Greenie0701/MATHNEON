@@ -176,6 +176,26 @@ Notes:
   return res; \
  }
 
+#define MN_ABS_DstSrc_OPERATION_VEC4F_NEON(loopCode) { \
+   mn_result_t res = MN_OK; \
+   float32x4_t n_src; \
+   float32x4_t n_dst; \
+   for (; count != 0; count --) { \
+     loopCode; \
+    } \
+   return res; \
+  }
+
+#define MN_ABS_DstSrc_OPERATION_VEC4I_NEON(loopCode) { \
+   mn_result_t res = MN_OK; \
+   int32x4_t n_src; \
+   int32x4_t n_dst; \
+   for (; count != 0; count --) { \
+     loopCode; \
+    } \
+   return res; \
+}
+
 #define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC2F_NEON(loopCode1, loopCode2) { \
     MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
     MN_ABS_DstSrc_OPERATION_VEC2F_NEON(  \
@@ -205,6 +225,20 @@ Notes:
     MN_ABS_DstSrc_OPERATION_VEC3I_NEON(  \
         MN_ABS_DstSrc_MAINLOOP_VEC3I_NEON(loopCode1); , \
         MN_ABS_DstSrc_SECONDLOOP_VEC3I_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC4F_NEON(loopCode) { \
+    ; \
+        MN_ABS_DstSrc_OPERATION_VEC4F_NEON( \
+        MN_ABS_DstSrc_MAINLOOP_VEC4F_NEON(loopCode); \
+    ); \
+}
+
+#define MN_ABS_DstSrc_DO_COUNT_TIMES_VEC4I_NEON(loopCode) { \
+    ; \
+        MN_ABS_DstSrc_OPERATION_VEC4I_NEON( \
+        MN_ABS_DstSrc_MAINLOOP_VEC4I_NEON(loopCode); \
     ); \
 }
 /*
@@ -286,6 +320,21 @@ Notes:
     dst = (mn_int32_t*)((char*)dst + 4 * sizeof(mn_int32_t));                          \
 }
 
+#define MN_ABS_DstSrc_MAINLOOP_VEC4F_NEON(loopCode) { \
+     n_src = vld1q_f32( (float32_t*)src ); \
+     src ++; \
+     loopCode; \
+     vst1q_f32 ( (float32_t*)dst , n_dst );  /* The main loop iterates through one 4D vector each time */ \
+     dst ++; \
+}
+
+#define MN_ABS_DstSrc_MAINLOOP_VEC4I_NEON(loopCode) { \
+     n_src = vld1q_s32( (int32_t*)src ); \
+     src ++; \
+     loopCode; \
+     vst1q_s32 ( (int32_t*)dst , n_dst );  /* The main loop iterates through one 4D vector each time */ \
+     dst ++; \
+}
 /*
     3. MN_SECONDLOOP_FLOAT/INT32_ABS
        ----------------------------
@@ -331,6 +380,7 @@ Notes:
      src++; \
      dst++; \
 }
+
 // -----------------------------------------------------------------------------
 // End of header guards
 // -----------------------------------------------------------------------------
