@@ -85,12 +85,12 @@ mn_result_t mn_abs_vec3i_neon (mn_vec3i_t * dst, mn_vec3i_t * src, uint32_t coun
 {
     MN_ABS_DstSrc_DO_COUNT_TIMES_VEC3I_NEON
     (
-        n_dst1 = vabsq_i32 (n_src1);
-        n_dst2 = vabsq_i32 (n_src2);
-        n_dst3 = vabsq_i32 (n_src3);
+        n_dst1 = vabsq_s32 (n_src1);
+        n_dst2 = vabsq_s32 (n_src2);
+        n_dst3 = vabsq_s32 (n_src3);
         ,
-        n_rest.val[0] = vabs_i32 (n_rest.val[0]);   /* the X lane */
-        n_rest.val[1] = vabs_i32 (n_rest.val[1]);   /* the Y lane */
-        n_rest.val[2] = vabs_i32 (n_rest.val[2]);   /* the Z lane */
+        n_rest.val[0] = vabs_s32 (n_rest.val[0]);   /* the X lane */
+        n_rest.val[1] = vabs_s32 (n_rest.val[1]);   /* the Y lane */
+        n_rest.val[2] = vabs_s32 (n_rest.val[2]);   /* the Z lane */
     );
 }
