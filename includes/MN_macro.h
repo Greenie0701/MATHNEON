@@ -52,6 +52,18 @@ extern "C" {
  * @endcode
  */
 #define MN_ASSERT_DS MN_CHECK_DstSRC
+/*
+Define 3D specific datatypes
+*/
+#define FLOAT32_2x3(x1,y1,x2,y2,x3,y3) \ /* TO DO - Add comments usage for this dtypes */
+    {{ \
+        {x1, y1}, {x2,y2}, {x3,y3} \
+    }}
+
+#define INT32_2x3(x1,y1,x2,y2,x3,y3) \
+    {{ \
+        {x1, y1}, {x2, y2}, {x3, y3} \
+    }}
 
 /*
 ===========================================================================
