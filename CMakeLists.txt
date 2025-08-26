@@ -32,14 +32,18 @@ else()
 endif()
 
 # ===== Source Files =====
+# Always include C fallbacks
+file(GLOB_RECURSE SOURCES_C
+    ${PROJECT_SOURCE_DIR}/src/*_c.c
+)
+
 if(NEON_SUPPORTED)
-    file(GLOB_RECURSE SOURCES
+    file(GLOB_RECURSE SOURCES_NEON
         ${PROJECT_SOURCE_DIR}/src/*_neon.c
     )
+    set(SOURCES ${SOURCES_C} ${SOURCES_NEON})
 else()
-    file(GLOB_RECURSE SOURCES
-        ${PROJECT_SOURCE_DIR}/src/*.c
-    )
+    set(SOURCES ${SOURCES_C})
 endif()
 
 # ===== Build Library =====
