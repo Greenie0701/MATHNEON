@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "../includes/MN_dtype.h"
 #include "../includes/MN_macro.h"
-#include "../includes/MN_math.h"   // contains both _neon and _c prototypes
+#include "../includes/MN_math.h"
 
 int main(void)
 {
