@@ -1,5 +1,6 @@
 #include "MN_dtype.h"
 #include "MN_macro.h"
+#include "MN_math.h"
 #include <assert.h>
 #include <math.h>
 
