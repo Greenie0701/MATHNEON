@@ -1,26 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include "../includes/MN_dtype.h"
 #include "../includes/MN_macro.h"
-#include "../src/abs/MN_abs_neon.c"
+#include "../includes/MN_math.h"   // contains both _neon and _c prototypes
 
-/* TO DO Remove standard fabs calls with C implementation of MN abs */
 int main(void)
 {
     int count = 16;
 
     // Allocate dynamically instead of Variable Length Arrays (VLA), MSVC doesn't supports VLA
-    // ===== Flat float/int arrays =====
-    float* src_f = (float*)malloc(sizeof(float) * count);
-    float* dst_f = (float*)malloc(sizeof(float) * count);
-    float* ref_f = (float*)malloc(sizeof(float) * count);
+    float* src_f  = (float*)malloc(sizeof(float) * count);
+    float* dst_f  = (float*)malloc(sizeof(float) * count);
+    float* ref_f  = (float*)malloc(sizeof(float) * count);
 
-    int* src_i = (int*)malloc(sizeof(int) * count);
-    int* dst_i = (int*)malloc(sizeof(int) * count);
-    int* ref_i = (int*)malloc(sizeof(int) * count);
+    int* src_i    = (int*)malloc(sizeof(int) * count);
+    int* dst_i    = (int*)malloc(sizeof(int) * count);
+    int* ref_i    = (int*)malloc(sizeof(int) * count);
 
-    // ===== Vec2 float/int arrays =====
     mn_vec2f_t* src_v2f = (mn_vec2f_t*)malloc(sizeof(mn_vec2f_t) * count);
     mn_vec2f_t* dst_v2f = (mn_vec2f_t*)malloc(sizeof(mn_vec2f_t) * count);
     mn_vec2f_t* ref_v2f = (mn_vec2f_t*)malloc(sizeof(mn_vec2f_t) * count);
@@ -29,7 +25,6 @@ int main(void)
     mn_vec2i_t* dst_v2i = (mn_vec2i_t*)malloc(sizeof(mn_vec2i_t) * count);
     mn_vec2i_t* ref_v2i = (mn_vec2i_t*)malloc(sizeof(mn_vec2i_t) * count);
 
-    // ===== Vec3 float/int arrays =====
     mn_vec3f_t* src_v3f = (mn_vec3f_t*)malloc(sizeof(mn_vec3f_t) * count);
     mn_vec3f_t* dst_v3f = (mn_vec3f_t*)malloc(sizeof(mn_vec3f_t) * count);
     mn_vec3f_t* ref_v3f = (mn_vec3f_t*)malloc(sizeof(mn_vec3f_t) * count);
@@ -38,7 +33,6 @@ int main(void)
     mn_vec3i_t* dst_v3i = (mn_vec3i_t*)malloc(sizeof(mn_vec3i_t) * count);
     mn_vec3i_t* ref_v3i = (mn_vec3i_t*)malloc(sizeof(mn_vec3i_t) * count);
 
-    // ===== Vec4 float/int arrays =====
     mn_vec4f_t* src_v4f = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
     mn_vec4f_t* dst_v4f = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
     mn_vec4f_t* ref_v4f = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
@@ -59,62 +53,43 @@ int main(void)
     // ==== Fill inputs ====
     for (int i = 0; i < count; i++)
     {
-        // flat float
         src_f[i] = (i % 2 == 0 ? -1.0f : 1.0f) * (float)i;
-        ref_f[i] = fabsf(src_f[i]);
-
-        // flat int
         src_i[i] = (i % 2 == 0 ? -1 : 1) * i;
-        ref_i[i] = abs(src_i[i]);
 
-        // vec2 float
         src_v2f[i].x = (i % 2 == 0 ? -1.0f : 1.0f) * (float)(i + 0.5f);
         src_v2f[i].y = (i % 3 == 0 ? -1.0f : 1.0f) * (float)(i + 1.5f);
-        ref_v2f[i].x = fabsf(src_v2f[i].x);
-        ref_v2f[i].y = fabsf(src_v2f[i].y);
 
-        // vec2 int
         src_v2i[i].x = (i % 2 == 0 ? -1 : 1) * (i + 10);
         src_v2i[i].y = (i % 3 == 0 ? -1 : 1) * (i + 20);
-        ref_v2i[i].x = abs(src_v2i[i].x);
-        ref_v2i[i].y = abs(src_v2i[i].y);
 
-        // vec3 float
         src_v3f[i].x = (i % 2 == 0 ? -1.0f : 1.0f) * (float)(i + 0.25f);
         src_v3f[i].y = (i % 3 == 0 ? -1.0f : 1.0f) * (float)(i + 1.25f);
         src_v3f[i].z = (i % 4 == 0 ? -1.0f : 1.0f) * (float)(i + 2.25f);
-        ref_v3f[i].x = fabsf(src_v3f[i].x);
-        ref_v3f[i].y = fabsf(src_v3f[i].y);
-        ref_v3f[i].z = fabsf(src_v3f[i].z);
 
-        // vec3 int
         src_v3i[i].x = (i % 2 == 0 ? -1 : 1) * (i + 100);
         src_v3i[i].y = (i % 3 == 0 ? -1 : 1) * (i + 200);
         src_v3i[i].z = (i % 4 == 0 ? -1 : 1) * (i + 300);
-        ref_v3i[i].x = abs(src_v3i[i].x);
-        ref_v3i[i].y = abs(src_v3i[i].y);
-        ref_v3i[i].z = abs(src_v3i[i].z);
 
-        // vec4 float
         src_v4f[i].x = (i % 2 == 0 ? -1.0f : 1.0f) * (float)(i + 0.1f);
         src_v4f[i].y = (i % 3 == 0 ? -1.0f : 1.0f) * (float)(i + 1.2f);
         src_v4f[i].z = (i % 4 == 0 ? -1.0f : 1.0f) * (float)(i + 2.3f);
         src_v4f[i].w = (i % 5 == 0 ? -1.0f : 1.0f) * (float)(i + 3.4f);
-        ref_v4f[i].x = fabsf(src_v4f[i].x);
-        ref_v4f[i].y = fabsf(src_v4f[i].y);
-        ref_v4f[i].z = fabsf(src_v4f[i].z);
-        ref_v4f[i].w = fabsf(src_v4f[i].w);
 
-        // vec4 int
         src_v4i[i].x = (i % 2 == 0 ? -1 : 1) * (i + 1000);
         src_v4i[i].y = (i % 3 == 0 ? -1 : 1) * (i + 2000);
         src_v4i[i].z = (i % 4 == 0 ? -1 : 1) * (i + 3000);
         src_v4i[i].w = (i % 5 == 0 ? -1 : 1) * (i + 4000);
-        ref_v4i[i].x = abs(src_v4i[i].x);
-        ref_v4i[i].y = abs(src_v4i[i].y);
-        ref_v4i[i].z = abs(src_v4i[i].z);
-        ref_v4i[i].w = abs(src_v4i[i].w);
     }
+
+    // ==== Compute reference results using C fallbacks ====
+    mn_abs_float_c(ref_f, src_f, count);
+    mn_abs_int32_c(ref_i, src_i, count);
+    mn_abs_vec2f_c(ref_v2f, src_v2f, count);
+    mn_abs_vec2i_c(ref_v2i, src_v2i, count);
+    mn_abs_vec3f_c(ref_v3f, src_v3f, count);
+    mn_abs_vec3i_c(ref_v3i, src_v3i, count);
+    mn_abs_vec4f_c(ref_v4f, src_v4f, count);
+    mn_abs_vec4i_c(ref_v4i, src_v4i, count);
 
     // ==== Call NEON routines ====
     mn_abs_float_neon(dst_f, src_f, count);
@@ -126,76 +101,29 @@ int main(void)
     mn_abs_vec4f_neon(dst_v4f, src_v4f, count);
     mn_abs_vec4i_neon(dst_v4i, src_v4i, count);
 
-    // ==== Validate flat results ====
+    // ==== Validate ====
     for (int i = 0; i < count; i++)
     {
-        if (fabsf(dst_f[i] - ref_f[i]) > 1e-6f || dst_i[i] != ref_i[i])
-        {
-            printf("Flat test failed at index %d\n", i);
-            return 1;
+        if (dst_f[i] != ref_f[i] || dst_i[i] != ref_i[i]) {
+            printf("Flat test failed at %d\n", i); return 1;
+        }
+        if (dst_v2f[i].x != ref_v2f[i].x || dst_v2f[i].y != ref_v2f[i].y ||
+            dst_v2i[i].x != ref_v2i[i].x || dst_v2i[i].y != ref_v2i[i].y) {
+            printf("Vec2 test failed at %d\n", i); return 1;
+        }
+        if (dst_v3f[i].x != ref_v3f[i].x || dst_v3f[i].y != ref_v3f[i].y || dst_v3f[i].z != ref_v3f[i].z ||
+            dst_v3i[i].x != ref_v3i[i].x || dst_v3i[i].y != ref_v3i[i].y || dst_v3i[i].z != ref_v3i[i].z) {
+            printf("Vec3 test failed at %d\n", i); return 1;
+        }
+        if (dst_v4f[i].x != ref_v4f[i].x || dst_v4f[i].y != ref_v4f[i].y ||
+            dst_v4f[i].z != ref_v4f[i].z || dst_v4f[i].w != ref_v4f[i].w ||
+            dst_v4i[i].x != ref_v4i[i].x || dst_v4i[i].y != ref_v4i[i].y ||
+            dst_v4i[i].z != ref_v4i[i].z || dst_v4i[i].w != ref_v4i[i].w) {
+            printf("Vec4 test failed at %d\n", i); return 1;
         }
     }
 
-    // ==== Validate vec2 results ====
-    for (int i = 0; i < count; i++)
-    {
-        if (fabsf(dst_v2f[i].x - ref_v2f[i].x) > 1e-6f ||
-            fabsf(dst_v2f[i].y - ref_v2f[i].y) > 1e-6f)
-        {
-            printf("Vec2f test failed at index %d\n", i);
-            return 1;
-        }
-
-        if (dst_v2i[i].x != ref_v2i[i].x || dst_v2i[i].y != ref_v2i[i].y)
-        {
-            printf("Vec2i test failed at index %d\n", i);
-            return 1;
-        }
-    }
-
-    // ==== Validate vec3 results ====
-    for (int i = 0; i < count; i++)
-    {
-        if (fabsf(dst_v3f[i].x - ref_v3f[i].x) > 1e-6f ||
-            fabsf(dst_v3f[i].y - ref_v3f[i].y) > 1e-6f ||
-            fabsf(dst_v3f[i].z - ref_v3f[i].z) > 1e-6f)
-        {
-            printf("Vec3f test failed at index %d\n", i);
-            return 1;
-        }
-
-        if (dst_v3i[i].x != ref_v3i[i].x ||
-            dst_v3i[i].y != ref_v3i[i].y ||
-            dst_v3i[i].z != ref_v3i[i].z)
-        {
-            printf("Vec3i test failed at index %d\n", i);
-            return 1;
-        }
-    }
-
-    // ==== Validate vec4 results ====
-    for (int i = 0; i < count; i++)
-    {
-        if (fabsf(dst_v4f[i].x - ref_v4f[i].x) > 1e-6f ||
-            fabsf(dst_v4f[i].y - ref_v4f[i].y) > 1e-6f ||
-            fabsf(dst_v4f[i].z - ref_v4f[i].z) > 1e-6f ||
-            fabsf(dst_v4f[i].w - ref_v4f[i].w) > 1e-6f)
-        {
-            printf("Vec4f test failed at index %d\n", i);
-            return 1;
-        }
-
-        if (dst_v4i[i].x != ref_v4i[i].x ||
-            dst_v4i[i].y != ref_v4i[i].y ||
-            dst_v4i[i].z != ref_v4i[i].z ||
-            dst_v4i[i].w != ref_v4i[i].w)
-        {
-            printf("Vec4i test failed at index %d\n", i);
-            return 1;
-        }
-    }
-
-    printf("All abs tests (flat + vec2 + vec3 + vec4) passed!\n");
+    printf("All abs tests passed!\n");
 
     // cleanup
     free(src_f); free(dst_f); free(ref_f);
