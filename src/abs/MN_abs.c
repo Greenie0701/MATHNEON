@@ -60,7 +60,7 @@ mn_result_t mn_abs_vec4i_c (mn_vec4i_t * dst, mn_vec4i_t * src, mn_uint32_t coun
     return MN_SUCCESS;
 }
 
-mn_result_t mn_abs_float32_c (mn_float32_t * dst, mn_float32_t * src, mn_uint32_t count)
+mn_result_t mn_abs_float_c (mn_float32_t * dst, mn_float32_t * src, mn_uint32_t count)
 {
     MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
