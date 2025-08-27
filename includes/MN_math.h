@@ -2,6 +2,7 @@
 #define MN_MATH_H
 
 #include "MN_dtype.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
