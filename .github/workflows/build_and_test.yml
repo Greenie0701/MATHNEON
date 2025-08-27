@@ -47,5 +47,5 @@ jobs:
       - name: Upload SDK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MATHNEON-SDK
+          name: MATHNEON-winarm64
           path: ${{ github.workspace }}/MATHNEON-winarm64.zip
