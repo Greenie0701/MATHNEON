@@ -40,6 +40,20 @@ extern "C" {
         } \
     } while (0)
 
+#define MN_CHECK_Dst1SRC1SRC2(arg1, arg2, arg3) \
+   if ( (void *)arg1 < (void *)arg2 ) \
+    { assert ( (void *)arg1 + count <= (void *)arg2 ); } \
+   else if ( (void *)arg1 > (void *)arg2 ) \
+    { assert ( (void *)arg2 + count <= (void *)arg1 ); } \
+   if ( (void *)arg1 < (void *)arg3 ) \
+    { assert ( (void *)arg1 + count <= (void *)arg3 ); } \
+   else if ( (void *)arg1 > (void *)arg3 ) \
+    { assert ( (void *)arg3 + count <= (void *)arg1 ); } \
+   if ( (void *)arg3 < (void *)arg2 ) \
+    { assert ( (void *)arg3 + count <= (void *)arg2 ); } \
+   else if ( (void *)arg3 > (void *)arg2 ) \
+    { assert ( (void *)arg2 + count <= (void *)arg3 ); }
+
 /**
  * @brief Shorthand for calling MN_CHECK_DstSRC.
  *
@@ -52,6 +66,7 @@ extern "C" {
  * @endcode
  */
 #define MN_ASSERT_DS MN_CHECK_DstSRC
+#define MN_ASSERT_DS1S2 MN_CHECK_Dst1SRC1SRC2
 
 /*
 ===========================================================================
