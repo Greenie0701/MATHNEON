@@ -397,6 +397,216 @@ Notes:
 }
 
 // -----------------------------------------------------------------------------
+// Addition Operation Macros
+// -----------------------------------------------------------------------------
+
+#define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    float32x4_t n_src1, n_src2; \
+    float32x4_t n_dst; \
+    float32x2_t n_rest1, n_rest2, n_rest; \
+    int dif = count % 4; /* remaining elements if not multiple of 4 */ \
+    for (; count > dif; count -= 4) { \
+        n_src1 = vld1q_f32((float32_t*)src1); \
+        n_src2 = vld1q_f32((float32_t*)src2); \
+        loopCode1; \
+        vst1q_f32((float32_t*)dst, n_dst); \
+        src1 += 4; src2 += 4; dst += 4; \
+    } \
+    if (dif != 0) { \
+        for (unsigned int idx = 0; idx < dif; idx++) { \
+            if (dif >= 2 && idx == 0) { \
+                n_rest1 = vld1_f32((float32_t*)src1); \
+                n_rest2 = vld1_f32((float32_t*)src2); \
+                loopCode2; \
+                vst1_f32((float32_t*)dst, n_rest); \
+                src1 += 2; src2 += 2; dst += 2; \
+                idx++; dif -= 2; \
+            } else { \
+                *dst++ = *src1++ + *src2++; \
+            } \
+        } \
+    } \
+}
+
+#define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_INT32_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    int32x4_t n_src1, n_src2; \
+    int32x4_t n_dst; \
+    int32x2_t n_rest1, n_rest2, n_rest; \
+    int dif = count % 4; /* remaining elements if not multiple of 4 */ \
+    for (; count > dif; count -= 4) { \
+        n_src1 = vld1q_s32((int32_t*)src1); \
+        n_src2 = vld1q_s32((int32_t*)src2); \
+        loopCode1; \
+        vst1q_s32((int32_t*)dst, n_dst); \
+        src1 += 4; src2 += 4; dst += 4; \
+    } \
+    if (dif != 0) { \
+        for (unsigned int idx = 0; idx < dif; idx++) { \
+            if (dif >= 2 && idx == 0) { \
+                n_rest1 = vld1_s32((int32_t*)src1); \
+                n_rest2 = vld1_s32((int32_t*)src2); \
+                loopCode2; \
+                vst1_s32((int32_t*)dst, n_rest); \
+                src1 += 2; src2 += 2; dst += 2; \
+                idx++; dif -= 2; \
+            } else { \
+                *dst++ = *src1++ + *src2++; \
+            } \
+        } \
+    } \
+}
+
+#define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_VEC2F_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+    mn_result_t res = MN_OK; \
+    float32x4_t n_src, n_dst; \
+    float32x2_t n_rest; \
+    int dif = count % 2; \
+    for (; count > dif; count -= 2) { \
+        /* Load two vec2f as one 128-bit vector */ \
+        n_src = vld1q_f32((float32_t*)src1); \
+        float32x4_t n_src2_vec = vld1q_f32((float32_t*)src2); \
+        n_src = vaddq_f32(n_src, n_src2_vec); \
+        loopCode1; \
+        vst1q_f32((float32_t*)dst, n_dst); \
+        src1 += 2; src2 += 2; dst += 2; \
+    } \
+    if (dif != 0) { \
+        /* Handle remaining single vec2f */ \
+        float32x2_t n_rest1 = vld1_f32((float32_t*)src1); \
+        float32x2_t n_rest2 = vld1_f32((float32_t*)src2); \
+        loopCode2; \
+        vst1_f32((float32_t*)dst, n_rest); \
+    } \
+    return res; \
+}
+
+#define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_VEC2I_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+    mn_result_t res = MN_OK; \
+    int32x4_t n_src, n_dst; \
+    int32x2_t n_rest; \
+    int dif = count % 2; \
+    for (; count > dif; count -= 2) { \
+        n_src = vld1q_s32((int32_t*)src1); \
+        int32x4_t n_src2_vec = vld1q_s32((int32_t*)src2); \
+        n_src = vaddq_s32(n_src, n_src2_vec); \
+        loopCode1; \
+        vst1q_s32((int32_t*)dst, n_dst); \
+        src1 += 2; src2 += 2; dst += 2; \
+    } \
+    if (dif != 0) { \
+        int32x2_t n_rest1 = vld1_s32((int32_t*)src1); \
+        int32x2_t n_rest2 = vld1_s32((int32_t*)src2); \
+        loopCode2; \
+        vst1_s32((int32_t*)dst, n_rest); \
+    } \
+    return res; \
+}
+
+#define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_VEC3F_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+    mn_result_t res = MN_OK; \
+    float32x4_t n_src11, n_src12, n_src13; \
+    float32x4_t n_src21, n_src22, n_src23; \
+    float32x4_t n_dst1, n_dst2, n_dst3; \
+    float32x2x3_t n_rest; \
+    int dif = count % 4; \
+    for (; count > dif; count -= 4) { \
+        /* Load 4 vec3f as 3 separate 128-bit vectors */ \
+        n_src11 = vld1q_f32((float32_t*)src1); \
+        n_src12 = vld1q_f32((float32_t*)src1 + 4); \
+        n_src13 = vld1q_f32((float32_t*)src1 + 8); \
+        n_src21 = vld1q_f32((float32_t*)src2); \
+        n_src22 = vld1q_f32((float32_t*)src2 + 4); \
+        n_src23 = vld1q_f32((float32_t*)src2 + 8); \
+        loopCode1; \
+        vst1q_f32((float32_t*)dst, n_dst1); \
+        vst1q_f32((float32_t*)dst + 4, n_dst2); \
+        vst1q_f32((float32_t*)dst + 8, n_dst3); \
+        src1 = (mn_vec3f_t*)((char*)src1 + 12 * sizeof(mn_float32_t)); \
+        src2 = (mn_vec3f_t*)((char*)src2 + 12 * sizeof(mn_float32_t)); \
+        dst = (mn_vec3f_t*)((char*)dst + 12 * sizeof(mn_float32_t)); \
+    } \
+    if (dif != 0) { \
+        for (unsigned int idx = 0; idx < dif; idx++) { \
+            n_rest = vld3_f32((float32_t*)src1); \
+            float32x2x3_t n_rest2 = vld3_f32((float32_t*)src2); \
+            loopCode2; \
+            vst3_f32((float32_t*)dst, n_rest); \
+            src1++; src2++; dst++; \
+        } \
+    } \
+    return res; \
+}
+
+#define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_VEC3I_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+    mn_result_t res = MN_OK; \
+    int32x4_t n_src11, n_src12, n_src13; \
+    int32x4_t n_src21, n_src22, n_src23; \
+    int32x4_t n_dst1, n_dst2, n_dst3; \
+    int32x2x3_t n_rest; \
+    int dif = count % 4; \
+    for (; count > dif; count -= 4) { \
+        n_src11 = vld1q_s32((int32_t*)src1); \
+        n_src12 = vld1q_s32((int32_t*)src1 + 4); \
+        n_src13 = vld1q_s32((int32_t*)src1 + 8); \
+        n_src21 = vld1q_s32((int32_t*)src2); \
+        n_src22 = vld1q_s32((int32_t*)src2 + 4); \
+        n_src23 = vld1q_s32((int32_t*)src2 + 8); \
+        loopCode1; \
+        vst1q_s32((int32_t*)dst, n_dst1); \
+        vst1q_s32((int32_t*)dst + 4, n_dst2); \
+        vst1q_s32((int32_t*)dst + 8, n_dst3); \
+        src1 = (mn_vec3i_t*)((char*)src1 + 12 * sizeof(mn_int32_t)); \
+        src2 = (mn_vec3i_t*)((char*)src2 + 12 * sizeof(mn_int32_t)); \
+        dst = (mn_vec3i_t*)((char*)dst + 12 * sizeof(mn_int32_t)); \
+    } \
+    if (dif != 0) { \
+        for (unsigned int idx = 0; idx < dif; idx++) { \
+            n_rest = vld3_s32((int32_t*)src1); \
+            int32x2x3_t n_rest2 = vld3_s32((int32_t*)src2); \
+            loopCode2; \
+            vst3_s32((int32_t*)dst, n_rest); \
+            src1++; src2++; dst++; \
+        } \
+    } \
+    return res; \
+}
+
+#define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_VEC4F_NEON(loopCode) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+    mn_result_t res = MN_OK; \
+    float32x4_t n_src1, n_src2, n_dst; \
+    for (; count != 0; count--) { \
+        n_src1 = vld1q_f32((float32_t*)src1); \
+        n_src2 = vld1q_f32((float32_t*)src2); \
+        loopCode; \
+        vst1q_f32((float32_t*)dst, n_dst); \
+        src1++; src2++; dst++; \
+    } \
+    return res; \
+}
+
+#define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_VEC4I_NEON(loopCode) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+    mn_result_t res = MN_OK; \
+    int32x4_t n_src1, n_src2, n_dst; \
+    for (; count != 0; count--) { \
+        n_src1 = vld1q_s32((int32_t*)src1); \
+        n_src2 = vld1q_s32((int32_t*)src2); \
+        loopCode; \
+        vst1q_s32((int32_t*)dst, n_dst); \
+        src1++; src2++; dst++; \
+    } \
+    return res; \
+}
+
+
+// -----------------------------------------------------------------------------
 // End of header guards
 // -----------------------------------------------------------------------------
 
