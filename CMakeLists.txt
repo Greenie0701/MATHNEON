@@ -32,12 +32,14 @@ endif()
 # Always include C fallbacks - explicit file list instead of glob
 set(SOURCES_C
     ${PROJECT_SOURCE_DIR}/src/abs/MN_abs.c
+    ${PROJECT_SOURCE_DIR}/src/abs/MN_add.c
     # Add other C implementation files here as you create them
 )
 
 if(NEON_SUPPORTED)
     set(SOURCES_NEON
         ${PROJECT_SOURCE_DIR}/src/abs/MN_abs_neon.c
+        ${PROJECT_SOURCE_DIR}/src/add/MN_add_neon.c
     )
     set(SOURCES ${SOURCES_C} ${SOURCES_NEON})
 else()
@@ -56,6 +58,7 @@ add_library(MATHNEON STATIC ${SOURCES})
 # ===== Enable Testing =====
 enable_testing()
 add_executable(test_abs test/test_abs_neon.c)
+add_executable(test_abs test/test_add_neon.c)
 target_link_libraries(test_abs PRIVATE MATHNEON)
 add_test(NAME test_abs COMMAND test_abs)
 
