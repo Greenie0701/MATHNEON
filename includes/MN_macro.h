@@ -66,7 +66,8 @@ extern "C" {
  * @endcode
  */
 #define MN_ASSERT_DS MN_CHECK_DstSRC
-#define MN_ASSERT_DS1S2 MN_CHECK_Dst1SRC1SRC2
+#define MN_ASSERT_DS1S2(dst, src1, src2) MN_CHECK_Dst1SRC1SRC2(dst, src1, src2)
+
 
 /*
 ===========================================================================
