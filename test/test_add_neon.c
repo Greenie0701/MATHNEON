@@ -1,266 +1,297 @@
-// test_neon_add_fixed.c - Fixed version with proper memory management
-#include "MN_dtype.h"
-#include "MN_math.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <math.h>
+#include "../includes/MN_dtype.h"
+#include "../includes/MN_macro.h"
+#include "../includes/MN_math.h"
 
-#ifdef _MSC_VER
-    #include <malloc.h>
-    #define aligned_alloc_custom(alignment, size) _aligned_malloc(size, alignment)
-    #define aligned_free_custom(ptr) _aligned_free(ptr)
-#else
-    #include <stdlib.h>
-    #define aligned_alloc_custom(alignment, size) aligned_alloc(alignment, size)
-    #define aligned_free_custom(ptr) free(ptr)
-#endif
+int main(void)
+{
+    int count = 16;
 
-// Test configuration
-#define TEST_SIZE_SMALL 15
-#define TEST_SIZE_LARGE 1000
-#define EPSILON 1e-6f
+    // Allocate memory for addition tests (need two source arrays)
+    float* src1_f = (float*)malloc(sizeof(float) * count);
+    float* src2_f = (float*)malloc(sizeof(float) * count);
+    float* dst_f  = (float*)malloc(sizeof(float) * count);
+    float* ref_f  = (float*)malloc(sizeof(float) * count);
 
-// Color codes for test output
-#define COLOR_GREEN "\033[0;32m"
-#define COLOR_RED "\033[0;31m"
-#define COLOR_BLUE "\033[0;34m"
-#define COLOR_RESET "\033[0m"
+    int* src1_i = (int*)malloc(sizeof(int) * count);
+    int* src2_i = (int*)malloc(sizeof(int) * count);
+    int* dst_i  = (int*)malloc(sizeof(int) * count);
+    int* ref_i  = (int*)malloc(sizeof(int) * count);
 
-typedef struct {
-    int passed;
-    int failed;
-    int total;
-} test_stats_t;
+    mn_vec2f_t* src1_v2f = (mn_vec2f_t*)malloc(sizeof(mn_vec2f_t) * count);
+    mn_vec2f_t* src2_v2f = (mn_vec2f_t*)malloc(sizeof(mn_vec2f_t) * count);
+    mn_vec2f_t* dst_v2f  = (mn_vec2f_t*)malloc(sizeof(mn_vec2f_t) * count);
+    mn_vec2f_t* ref_v2f  = (mn_vec2f_t*)malloc(sizeof(mn_vec2f_t) * count);
 
-void print_test_header(const char* test_name) {
-    printf(COLOR_BLUE "=== Testing %s ===" COLOR_RESET "\n", test_name);
-}
+    mn_vec2i_t* src1_v2i = (mn_vec2i_t*)malloc(sizeof(mn_vec2i_t) * count);
+    mn_vec2i_t* src2_v2i = (mn_vec2i_t*)malloc(sizeof(mn_vec2i_t) * count);
+    mn_vec2i_t* dst_v2i  = (mn_vec2i_t*)malloc(sizeof(mn_vec2i_t) * count);
+    mn_vec2i_t* ref_v2i  = (mn_vec2i_t*)malloc(sizeof(mn_vec2i_t) * count);
 
-void print_test_result(const char* test_name, int passed, test_stats_t* stats) {
-    stats->total++;
-    if (passed) {
-        stats->passed++;
-        printf(COLOR_GREEN "✓ %s PASSED" COLOR_RESET "\n", test_name);
-    } else {
-        stats->failed++;
-        printf(COLOR_RED "✗ %s FAILED" COLOR_RESET "\n", test_name);
-    }
-}
+    mn_vec3f_t* src1_v3f = (mn_vec3f_t*)malloc(sizeof(mn_vec3f_t) * count);
+    mn_vec3f_t* src2_v3f = (mn_vec3f_t*)malloc(sizeof(mn_vec3f_t) * count);
+    mn_vec3f_t* dst_v3f  = (mn_vec3f_t*)malloc(sizeof(mn_vec3f_t) * count);
+    mn_vec3f_t* ref_v3f  = (mn_vec3f_t*)malloc(sizeof(mn_vec3f_t) * count);
 
-int float_equal(float a, float b) {
-    return fabs(a - b) < EPSILON;
-}
+    mn_vec3i_t* src1_v3i = (mn_vec3i_t*)malloc(sizeof(mn_vec3i_t) * count);
+    mn_vec3i_t* src2_v3i = (mn_vec3i_t*)malloc(sizeof(mn_vec3i_t) * count);
+    mn_vec3i_t* dst_v3i  = (mn_vec3i_t*)malloc(sizeof(mn_vec3i_t) * count);
+    mn_vec3i_t* ref_v3i  = (mn_vec3i_t*)malloc(sizeof(mn_vec3i_t) * count);
 
-// Safe memory allocation with error checking
-void* safe_aligned_alloc(size_t alignment, size_t size) {
-    void* ptr = aligned_alloc_custom(alignment, size);
-    if (!ptr) {
-        printf("ERROR: Memory allocation failed for %zu bytes\n", size);
-        exit(1);
-    }
-    // Initialize to zero to avoid using uninitialized memory
-    memset(ptr, 0, size);
-    return ptr;
-}
+    mn_vec4f_t* src1_v4f = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
+    mn_vec4f_t* src2_v4f = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
+    mn_vec4f_t* dst_v4f  = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
+    mn_vec4f_t* ref_v4f  = (mn_vec4f_t*)malloc(sizeof(mn_vec4f_t) * count);
 
-// Cleanup helper that handles multiple pointers
-void cleanup_memory(void** ptrs, int count) {
-    for (int i = 0; i < count; i++) {
-        if (ptrs[i]) {
-            aligned_free_custom(ptrs[i]);
-            ptrs[i] = NULL;
-        }
-    }
-}
+    mn_vec4i_t* src1_v4i = (mn_vec4i_t*)malloc(sizeof(mn_vec4i_t) * count);
+    mn_vec4i_t* src2_v4i = (mn_vec4i_t*)malloc(sizeof(mn_vec4i_t) * count);
+    mn_vec4i_t* dst_v4i  = (mn_vec4i_t*)malloc(sizeof(mn_vec4i_t) * count);
+    mn_vec4i_t* ref_v4i  = (mn_vec4i_t*)malloc(sizeof(mn_vec4i_t) * count);
 
-int test_add_float_neon_safe(test_stats_t* stats) {
-    print_test_header("mn_add_float_neon (safe version)");
-    
-    int sizes[] = {TEST_SIZE_SMALL, TEST_SIZE_LARGE};
-    int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
-    
-    for (int s = 0; s < num_sizes; s++) {
-        int count = sizes[s];
-        printf("Testing with count = %d\n", count);
-        
-        // Allocate extra space to detect buffer overruns
-        size_t alloc_size = (count + 4) * sizeof(mn_float32_t);
-        
-        mn_float32_t* src1 = (mn_float32_t*)safe_aligned_alloc(16, alloc_size);
-        mn_float32_t* src2 = (mn_float32_t*)safe_aligned_alloc(16, alloc_size);
-        mn_float32_t* dst_neon = (mn_float32_t*)safe_aligned_alloc(16, alloc_size);
-        mn_float32_t* dst_reference = (mn_float32_t*)safe_aligned_alloc(16, alloc_size);
-        
-        void* ptrs[] = {src1, src2, dst_neon, dst_reference};
-        
-        // Initialize test data with known values
-        for (int i = 0; i < count; i++) {
-            src1[i] = (float)(i + 1) * 1.5f;
-            src2[i] = (float)(i + 1) * 0.5f;
-        }
-        
-        // Add canary values after the data to detect overwrites
-        for (int i = count; i < count + 4; i++) {
-            src1[i] = -999.0f;
-            src2[i] = -999.0f;
-            dst_neon[i] = -999.0f;
-            dst_reference[i] = -999.0f;
-        }
-        
-        printf("Computing reference result...\n");
-        mn_result_t result_ref = mn_add_float_c(dst_reference, src1, src2, count);
-        if (result_ref != MN_SUCCESS) {
-            printf("ERROR: C reference implementation failed with code %d\n", result_ref);
-            cleanup_memory(ptrs, 4);
-            continue;
-        }
-        
-        printf("Computing NEON result...\n");
-        mn_result_t result_neon = mn_add_float_neon(dst_neon, src1, src2, count);
-        if (result_neon != MN_SUCCESS) {
-            printf("ERROR: NEON implementation failed with code %d\n", result_neon);
-            cleanup_memory(ptrs, 4);
-            continue;
-        }
-        
-        // Check canary values first
-        int canary_ok = 1;
-        for (int i = count; i < count + 4; i++) {
-            if (dst_neon[i] != -999.0f || dst_reference[i] != -999.0f) {
-                printf("ERROR: Buffer overrun detected at index %d\n", i);
-                canary_ok = 0;
-            }
-        }
-        
-        if (!canary_ok) {
-            cleanup_memory(ptrs, 4);
-            continue;
-        }
-        
-        // Compare results
-        int passed = 1;
-        for (int i = 0; i < count; i++) {
-            if (!float_equal(dst_neon[i], dst_reference[i])) {
-                printf("Mismatch at index %d: NEON=%.6f, Reference=%.6f, diff=%.8f\n", 
-                       i, dst_neon[i], dst_reference[i], fabs(dst_neon[i] - dst_reference[i]));
-                passed = 0;
-                break;
-            }
-        }
-        
-        char test_name[100];
-        snprintf(test_name, sizeof(test_name), "mn_add_float_neon (count=%d)", count);
-        print_test_result(test_name, passed, stats);
-        
-        cleanup_memory(ptrs, 4);
-    }
-    
-    return 1;
-}
-
-// Simple test with minimal operations
-int test_simple_add(test_stats_t* stats) {
-    print_test_header("Simple Addition Test");
-    
-    const int count = 4; // Exactly one SIMD register worth
-    
-    mn_float32_t src1[8] = {1.0f, 2.0f, 3.0f, 4.0f, 0, 0, 0, 0};
-    mn_float32_t src2[8] = {0.5f, 1.5f, 2.5f, 3.5f, 0, 0, 0, 0};
-    mn_float32_t dst_neon[8] = {0};
-    mn_float32_t dst_ref[8] = {0};
-    
-    printf("Input validation:\n");
-    printf("src1: [%.1f, %.1f, %.1f, %.1f]\n", src1[0], src1[1], src1[2], src1[3]);
-    printf("src2: [%.1f, %.1f, %.1f, %.1f]\n", src2[0], src2[1], src2[2], src2[3]);
-    
-    // Test C implementation
-    mn_result_t result_c = mn_add_float_c(dst_ref, src1, src2, count);
-    printf("C result code: %d\n", result_c);
-    if (result_c == MN_SUCCESS) {
-        printf("C result: [%.1f, %.1f, %.1f, %.1f]\n", 
-               dst_ref[0], dst_ref[1], dst_ref[2], dst_ref[3]);
-    }
-    
-    // Test NEON implementation
-    printf("Calling NEON implementation...\n");
-    mn_result_t result_neon = mn_add_float_neon(dst_neon, src1, src2, count);
-    printf("NEON result code: %d\n", result_neon);
-    
-    if (result_neon != MN_SUCCESS) {
-        print_test_result("Simple NEON addition", 0, stats);
-        return 0;
-    }
-    
-    printf("NEON result: [%.1f, %.1f, %.1f, %.1f]\n", 
-           dst_neon[0], dst_neon[1], dst_neon[2], dst_neon[3]);
-    
-    // Compare
-    int passed = 1;
-    for (int i = 0; i < count; i++) {
-        if (!float_equal(dst_neon[i], dst_ref[i])) {
-            printf("Mismatch at index %d: NEON=%.6f, Reference=%.6f\n", 
-                   i, dst_neon[i], dst_ref[i]);
-            passed = 0;
-        }
-    }
-    
-    print_test_result("Simple NEON addition", passed, stats);
-    return passed;
-}
-
-// Test null pointer handling
-int test_null_pointers(test_stats_t* stats) {
-    print_test_header("Null Pointer Tests");
-    
-    mn_float32_t dummy[4] = {1, 2, 3, 4};
-    
-    // Test various null pointer scenarios
-    mn_result_t result1 = mn_add_float_neon(NULL, dummy, dummy, 4);
-    mn_result_t result2 = mn_add_float_neon(dummy, NULL, dummy, 4);
-    mn_result_t result3 = mn_add_float_neon(dummy, dummy, NULL, 4);
-    
-    int passed = (result1 != MN_SUCCESS && result2 != MN_SUCCESS && result3 != MN_SUCCESS);
-    print_test_result("Null pointer handling", passed, stats);
-    
-    return passed;
-}
-
-int main() {
-    printf(COLOR_BLUE "==========================================\n");
-    printf("     MN NEON Addition Operations Test\n");
-    printf("     (Debug Version)\n");
-    printf("==========================================" COLOR_RESET "\n\n");
-    
-    test_stats_t stats = {0, 0, 0};
-    
-    // Start with simple tests
-    printf("Starting with basic tests...\n\n");
-    
-    test_null_pointers(&stats);
-    test_simple_add(&stats);
-    
-    // Only continue with complex tests if simple ones pass
-    if (stats.failed == 0) {
-        printf("\nBasic tests passed, continuing with comprehensive tests...\n\n");
-        test_add_float_neon_safe(&stats);
-    }
-    
-    // Print final results
-    printf(COLOR_BLUE "\n=== Test Summary ===" COLOR_RESET "\n");
-    printf("Total tests: %d\n", stats.total);
-    printf(COLOR_GREEN "Passed: %d" COLOR_RESET "\n", stats.passed);
-    if (stats.failed > 0) {
-        printf(COLOR_RED "Failed: %d" COLOR_RESET "\n", stats.failed);
-    }
-    
-    if (stats.failed == 0) {
-        printf(COLOR_GREEN "\n🎉 All tests passed!\n" COLOR_RESET);
-    } else {
-        printf(COLOR_RED "\n❌ Some tests failed.\n" COLOR_RESET);
+    // Check all allocations
+    if (!src1_f || !src2_f || !dst_f || !ref_f || 
+        !src1_i || !src2_i || !dst_i || !ref_i ||
+        !src1_v2f || !src2_v2f || !dst_v2f || !ref_v2f || 
+        !src1_v2i || !src2_v2i || !dst_v2i || !ref_v2i ||
+        !src1_v3f || !src2_v3f || !dst_v3f || !ref_v3f || 
+        !src1_v3i || !src2_v3i || !dst_v3i || !ref_v3i ||
+        !src1_v4f || !src2_v4f || !dst_v4f || !ref_v4f || 
+        !src1_v4i || !src2_v4i || !dst_v4i || !ref_v4i)
+    {
+        fprintf(stderr, "malloc failed!\n");
         return 1;
     }
+
+    // ==== Fill inputs ====
+    printf("Initializing test data...\n");
+    for (int i = 0; i < count; i++)
+    {
+        // Simple test values for addition
+        src1_f[i] = (float)(i + 1);
+        src2_f[i] = (float)(i + 1) * 0.5f;
+
+        src1_i[i] = i + 1;
+        src2_i[i] = (i + 1) * 2;
+
+        src1_v2f[i].x = (float)(i + 1);
+        src1_v2f[i].y = (float)(i + 1) * 1.1f;
+        src2_v2f[i].x = (float)(i + 1) * 0.5f;
+        src2_v2f[i].y = (float)(i + 1) * 0.6f;
+
+        src1_v2i[i].x = i + 1;
+        src1_v2i[i].y = (i + 1) * 2;
+        src2_v2i[i].x = i + 10;
+        src2_v2i[i].y = (i + 1) * 3;
+
+        src1_v3f[i].x = (float)(i + 1);
+        src1_v3f[i].y = (float)(i + 1) * 1.1f;
+        src1_v3f[i].z = (float)(i + 1) * 1.2f;
+        src2_v3f[i].x = (float)(i + 1) * 0.5f;
+        src2_v3f[i].y = (float)(i + 1) * 0.6f;
+        src2_v3f[i].z = (float)(i + 1) * 0.7f;
+
+        src1_v3i[i].x = i + 1;
+        src1_v3i[i].y = (i + 1) * 2;
+        src1_v3i[i].z = (i + 1) * 3;
+        src2_v3i[i].x = i + 10;
+        src2_v3i[i].y = (i + 1) * 4;
+        src2_v3i[i].z = (i + 1) * 5;
+
+        src1_v4f[i].x = (float)(i + 1);
+        src1_v4f[i].y = (float)(i + 1) * 1.1f;
+        src1_v4f[i].z = (float)(i + 1) * 1.2f;
+        src1_v4f[i].w = (float)(i + 1) * 1.3f;
+        src2_v4f[i].x = (float)(i + 1) * 0.5f;
+        src2_v4f[i].y = (float)(i + 1) * 0.6f;
+        src2_v4f[i].z = (float)(i + 1) * 0.7f;
+        src2_v4f[i].w = (float)(i + 1) * 0.8f;
+
+        src1_v4i[i].x = i + 1;
+        src1_v4i[i].y = (i + 1) * 2;
+        src1_v4i[i].z = (i + 1) * 3;
+        src1_v4i[i].w = (i + 1) * 4;
+        src2_v4i[i].x = i + 10;
+        src2_v4i[i].y = (i + 1) * 5;
+        src2_v4i[i].z = (i + 1) * 6;
+        src2_v4i[i].w = (i + 1) * 7;
+    }
+
+    // ==== Compute reference results using C fallbacks ====
+    printf("Computing reference results...\n");
+    mn_add_float_c(ref_f, src1_f, src2_f, count);
+    mn_add_int32_c(ref_i, src1_i, src2_i, count);
+    mn_add_vec2f_c(ref_v2f, src1_v2f, src2_v2f, count);
+    mn_add_vec2i_c(ref_v2i, src1_v2i, src2_v2i, count);
+    mn_add_vec3f_c(ref_v3f, src1_v3f, src2_v3f, count);
+    mn_add_vec3i_c(ref_v3i, src1_v3i, src2_v3i, count);
+    mn_add_vec4f_c(ref_v4f, src1_v4f, src2_v4f, count);
+    mn_add_vec4i_c(ref_v4i, src1_v4i, src2_v4i, count);
+
+    // ==== Test each NEON routine individually ====
+    printf("Testing mn_add_float_neon...\n");
+    mn_result_t result1 = mn_add_float_neon(dst_f, src1_f, src2_f, count);
+    if (result1 != MN_SUCCESS) {
+        printf("mn_add_float_neon failed with code %d\n", result1);
+        goto cleanup;
+    }
+
+    printf("Testing mn_add_int32_neon...\n");
+    mn_result_t result2 = mn_add_int32_neon(dst_i, src1_i, src2_i, count);
+    if (result2 != MN_SUCCESS) {
+        printf("mn_add_int32_neon failed with code %d\n", result2);
+        goto cleanup;
+    }
+
+    printf("Testing mn_add_vec2f_neon...\n");
+    mn_result_t result3 = mn_add_vec2f_neon(dst_v2f, src1_v2f, src2_v2f, count);
+    if (result3 != MN_SUCCESS) {
+        printf("mn_add_vec2f_neon failed with code %d\n", result3);
+        goto cleanup;
+    }
+
+    printf("Testing mn_add_vec2i_neon...\n");
+    mn_result_t result4 = mn_add_vec2i_neon(dst_v2i, src1_v2i, src2_v2i, count);
+    if (result4 != MN_SUCCESS) {
+        printf("mn_add_vec2i_neon failed with code %d\n", result4);
+        goto cleanup;
+    }
+
+    printf("Testing mn_add_vec3f_neon...\n");
+    mn_result_t result5 = mn_add_vec3f_neon(dst_v3f, src1_v3f, src2_v3f, count);
+    if (result5 != MN_SUCCESS) {
+        printf("mn_add_vec3f_neon failed with code %d\n", result5);
+        goto cleanup;
+    }
+
+    printf("Testing mn_add_vec3i_neon...\n");
+    mn_result_t result6 = mn_add_vec3i_neon(dst_v3i, src1_v3i, src2_v3i, count);
+    if (result6 != MN_SUCCESS) {
+        printf("mn_add_vec3i_neon failed with code %d\n", result6);
+        goto cleanup;
+    }
+
+    printf("Testing mn_add_vec4f_neon...\n");
+    mn_result_t result7 = mn_add_vec4f_neon(dst_v4f, src1_v4f, src2_v4f, count);
+    if (result7 != MN_SUCCESS) {
+        printf("mn_add_vec4f_neon failed with code %d\n", result7);
+        goto cleanup;
+    }
+
+    printf("Testing mn_add_vec4i_neon...\n");
+    mn_result_t result8 = mn_add_vec4i_neon(dst_v4i, src1_v4i, src2_v4i, count);
+    if (result8 != MN_SUCCESS) {
+        printf("mn_add_vec4i_neon failed with code %d\n", result8);
+        goto cleanup;
+    }
+
+    // ==== Validate results ====
+    printf("Validating results...\n");
     
+    // Check float results
+    for (int i = 0; i < count; i++) {
+        if (dst_f[i] != ref_f[i]) {
+            printf("Float test failed at %d: NEON=%.6f, Reference=%.6f\n", 
+                   i, dst_f[i], ref_f[i]);
+            goto cleanup;
+        }
+    }
+    printf("Float addition test passed!\n");
+
+    // Check int32 results  
+    for (int i = 0; i < count; i++) {
+        if (dst_i[i] != ref_i[i]) {
+            printf("Int32 test failed at %d: NEON=%d, Reference=%d\n", 
+                   i, dst_i[i], ref_i[i]);
+            goto cleanup;
+        }
+    }
+    printf("Int32 addition test passed!\n");
+
+    // Check vec2f results
+    for (int i = 0; i < count; i++) {
+        if (dst_v2f[i].x != ref_v2f[i].x || dst_v2f[i].y != ref_v2f[i].y) {
+            printf("Vec2f test failed at %d\n", i);
+            printf("  NEON: (%.6f, %.6f)\n", dst_v2f[i].x, dst_v2f[i].y);
+            printf("  Ref:  (%.6f, %.6f)\n", ref_v2f[i].x, ref_v2f[i].y);
+            goto cleanup;
+        }
+    }
+    printf("Vec2f addition test passed!\n");
+
+    // Check vec2i results
+    for (int i = 0; i < count; i++) {
+        if (dst_v2i[i].x != ref_v2i[i].x || dst_v2i[i].y != ref_v2i[i].y) {
+            printf("Vec2i test failed at %d\n", i);
+            printf("  NEON: (%d, %d)\n", dst_v2i[i].x, dst_v2i[i].y);
+            printf("  Ref:  (%d, %d)\n", ref_v2i[i].x, ref_v2i[i].y);
+            goto cleanup;
+        }
+    }
+    printf("Vec2i addition test passed!\n");
+
+    // Check vec3f results
+    for (int i = 0; i < count; i++) {
+        if (dst_v3f[i].x != ref_v3f[i].x || dst_v3f[i].y != ref_v3f[i].y || dst_v3f[i].z != ref_v3f[i].z) {
+            printf("Vec3f test failed at %d\n", i);
+            printf("  NEON: (%.6f, %.6f, %.6f)\n", dst_v3f[i].x, dst_v3f[i].y, dst_v3f[i].z);
+            printf("  Ref:  (%.6f, %.6f, %.6f)\n", ref_v3f[i].x, ref_v3f[i].y, ref_v3f[i].z);
+            goto cleanup;
+        }
+    }
+    printf("Vec3f addition test passed!\n");
+
+    // Check vec3i results
+    for (int i = 0; i < count; i++) {
+        if (dst_v3i[i].x != ref_v3i[i].x || dst_v3i[i].y != ref_v3i[i].y || dst_v3i[i].z != ref_v3i[i].z) {
+            printf("Vec3i test failed at %d\n", i);
+            printf("  NEON: (%d, %d, %d)\n", dst_v3i[i].x, dst_v3i[i].y, dst_v3i[i].z);
+            printf("  Ref:  (%d, %d, %d)\n", ref_v3i[i].x, ref_v3i[i].y, ref_v3i[i].z);
+            goto cleanup;
+        }
+    }
+    printf("Vec3i addition test passed!\n");
+
+    // Check vec4f results
+    for (int i = 0; i < count; i++) {
+        if (dst_v4f[i].x != ref_v4f[i].x || dst_v4f[i].y != ref_v4f[i].y || 
+            dst_v4f[i].z != ref_v4f[i].z || dst_v4f[i].w != ref_v4f[i].w) {
+            printf("Vec4f test failed at %d\n", i);
+            printf("  NEON: (%.6f, %.6f, %.6f, %.6f)\n", 
+                   dst_v4f[i].x, dst_v4f[i].y, dst_v4f[i].z, dst_v4f[i].w);
+            printf("  Ref:  (%.6f, %.6f, %.6f, %.6f)\n", 
+                   ref_v4f[i].x, ref_v4f[i].y, ref_v4f[i].z, ref_v4f[i].w);
+            goto cleanup;
+        }
+    }
+    printf("Vec4f addition test passed!\n");
+
+    // Check vec4i results
+    for (int i = 0; i < count; i++) {
+        if (dst_v4i[i].x != ref_v4i[i].x || dst_v4i[i].y != ref_v4i[i].y || 
+            dst_v4i[i].z != ref_v4i[i].z || dst_v4i[i].w != ref_v4i[i].w) {
+            printf("Vec4i test failed at %d\n", i);
+            printf("  NEON: (%d, %d, %d, %d)\n", 
+                   dst_v4i[i].x, dst_v4i[i].y, dst_v4i[i].z, dst_v4i[i].w);
+            printf("  Ref:  (%d, %d, %d, %d)\n", 
+                   ref_v4i[i].x, ref_v4i[i].y, ref_v4i[i].z, ref_v4i[i].w);
+            goto cleanup;
+        }
+    }
+    printf("Vec4i addition test passed!\n");
+
+    printf("All addition tests passed!\n");
+
+cleanup:
+    // Free all allocated memory
+    free(src1_f); free(src2_f); free(dst_f); free(ref_f);
+    free(src1_i); free(src2_i); free(dst_i); free(ref_i);
+    free(src1_v2f); free(src2_v2f); free(dst_v2f); free(ref_v2f);
+    free(src1_v2i); free(src2_v2i); free(dst_v2i); free(ref_v2i);
+    free(src1_v3f); free(src2_v3f); free(dst_v3f); free(ref_v3f);
+    free(src1_v3i); free(src2_v3i); free(dst_v3i); free(ref_v3i);
+    free(src1_v4f); free(src2_v4f); free(dst_v4f); free(ref_v4f);
+    free(src1_v4i); free(src2_v4i); free(dst_v4i); free(ref_v4i);
+
     return 0;
 }
