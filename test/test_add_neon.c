@@ -7,6 +7,16 @@
 #include <time.h>
 #include <math.h>
 
+#ifdef _MSC_VER
+    #include <malloc.h>
+    #define aligned_alloc(alignment, size) _aligned_malloc(size, alignment)
+    #define aligned_free(ptr) _aligned_free(ptr)
+#else
+    #include <stdlib.h>
+    #define aligned_free(ptr) free(ptr)
+#endif
+
+
 // Test configuration
 #define TEST_SIZE_SMALL 15    // Not divisible by 4 (tests remainder handling)
 #define TEST_SIZE_LARGE 1000  // Divisible by 4 (tests main SIMD loop)
