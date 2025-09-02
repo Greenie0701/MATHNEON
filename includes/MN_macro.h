@@ -403,6 +403,7 @@ Notes:
 
 #define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
     MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check dst/src1/src2 pointers don't overlap */ \
+    mn_result_t res = MN_OK; \
     float32x4_t n_src1, n_src2; \
     float32x4_t n_dst; \
     float32x2_t n_rest1, n_rest2, n_rest; \
@@ -415,10 +416,12 @@ Notes:
             loopCode2; \
         } \
     } \
+    return res; \
 }
 
 #define MN_ADD_DstSrc1Src2_DO_COUNT_TIMES_INT32_NEON(loopCode1, loopCode2) { \
     MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check dst/src1/src2 pointers don't overlap */ \
+    mn_result_t res = MN_OK; \
     int32x4_t n_src1, n_src2; \
     int32x4_t n_dst; \
     int32x2_t n_rest1, n_rest2, n_rest; \
@@ -431,6 +434,7 @@ Notes:
             loopCode2; \
         } \
     } \
+    return res; \
 }
 
 // Vector operation macros (similar to the ABS pattern)
