@@ -19,7 +19,7 @@ Function Input:
 
 mn_result_t mn_add_int32_c (mn_int32_t * dst, mn_int32_t * src1, mn_int32_t * src2, mn_uint32_t count)
 {
-    MN_ASSERT_DS1S2;
+    MN_ASSERT_DS1S2(dst, src1, src2);;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[itr] = (src1[itr]+src2[itr]);
@@ -29,7 +29,7 @@ mn_result_t mn_add_int32_c (mn_int32_t * dst, mn_int32_t * src1, mn_int32_t * sr
 
 mn_result_t mn_add_vec2i_c (mn_vec2i_t * dst, mn_vec2i_t * src1, mn_vec2i_t * src2, mn_uint32_t count)
 {
-    MN_ASSERT_DS1S2;
+    MN_ASSERT_DS1S2(dst, src1, src2);;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = (src1[ itr ].x+src2[ itr ].x);
@@ -40,7 +40,7 @@ mn_result_t mn_add_vec2i_c (mn_vec2i_t * dst, mn_vec2i_t * src1, mn_vec2i_t * sr
 
 mn_result_t mn_add_vec3i_c (mn_vec3i_t * dst, mn_vec3i_t * src1, mn_vec3i_t * src2, mn_uint32_t count)
 {
-    MN_ASSERT_DS1S2;
+    MN_ASSERT_DS1S2(dst, src1, src2);;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = (src1[ itr ].x+src2[ itr ].x);
@@ -52,7 +52,7 @@ mn_result_t mn_add_vec3i_c (mn_vec3i_t * dst, mn_vec3i_t * src1, mn_vec3i_t * sr
 
 mn_result_t mn_add_vec4i_c (mn_vec4i_t * dst, mn_vec4i_t * src1, mn_vec4i_t * src2, mn_uint32_t count)
 {
-    MN_ASSERT_DS1S2;
+    MN_ASSERT_DS1S2(dst, src1, src2);;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = (src1[ itr ].x+src2[ itr ].x);
@@ -65,7 +65,7 @@ mn_result_t mn_add_vec4i_c (mn_vec4i_t * dst, mn_vec4i_t * src1, mn_vec4i_t * sr
 
 mn_result_t mn_add_float_c (mn_float32_t * dst, mn_float32_t * src1, mn_float32_t * src2, mn_uint32_t count)
 {
-    MN_ASSERT_DS1S2;
+    MN_ASSERT_DS1S2(dst, src1, src2);;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[itr] = (src1[itr]+src2[itr]);
@@ -75,7 +75,7 @@ mn_result_t mn_add_float_c (mn_float32_t * dst, mn_float32_t * src1, mn_float32_
 
 mn_result_t mn_add_vec2f_c (mn_vec2f_t * dst, mn_vec2f_t * src1, mn_vec2f_t * src2, mn_uint32_t count)
 {
-    MN_ASSERT_DS1S2;
+    MN_ASSERT_DS1S2(dst, src1, src2);;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = (src1[ itr ].x+src2[ itr ].x);
@@ -86,7 +86,7 @@ mn_result_t mn_add_vec2f_c (mn_vec2f_t * dst, mn_vec2f_t * src1, mn_vec2f_t * sr
 
 mn_result_t mn_add_vec3f_c (mn_vec3f_t * dst, mn_vec3f_t * src1, mn_vec3f_t * src2, mn_uint32_t count)
 {
-    MN_ASSERT_DS1S2;
+    MN_ASSERT_DS1S2(dst, src1, src2);;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = (src1[ itr ].x+src2[ itr ].x);
@@ -98,7 +98,7 @@ mn_result_t mn_add_vec3f_c (mn_vec3f_t * dst, mn_vec3f_t * src1, mn_vec3f_t * sr
 
 mn_result_t mn_add_vec4f_c (mn_vec4f_t * dst, mn_vec4f_t * src1, mn_vec4f_t * src2, mn_uint32_t count)
 {
-    MN_ASSERT_DS1S2;
+    MN_ASSERT_DS1S2(dst, src1, src2);;
     for ( unsigned int itr = 0; itr < count; itr++ )
     {
         dst[ itr ].x = (src1[ itr ].x+src2[ itr ].x);
