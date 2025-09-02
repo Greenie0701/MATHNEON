@@ -29,7 +29,6 @@ mn_result_t mn_add_float_neon(mn_float32_t * dst, mn_float32_t * src1, mn_float3
         MN_MAINLOOP_FLOAT_NEON_ADD,      /* SIMD block for 4 elements */
         MN_SECONDLOOP_FLOAT_ADD          /* scalar leftover elements */
     );
-    return MN_SUCCESS;
 }
 
 mn_result_t mn_add_int32_neon(mn_int32_t * dst, mn_int32_t * src1, mn_int32_t * src2, uint32_t count)
@@ -38,7 +37,6 @@ mn_result_t mn_add_int32_neon(mn_int32_t * dst, mn_int32_t * src1, mn_int32_t * 
         MN_MAINLOOP_INT32_NEON_ADD,      /* SIMD block for 4 elements */
         MN_SECONDLOOP_INT32_ADD          /* scalar leftover elements */
     );
-    return MN_SUCCESS;
 }
 
 mn_result_t mn_add_vec2f_neon(mn_vec2f_t * dst, mn_vec2f_t * src1, mn_vec2f_t * src2, uint32_t count)
