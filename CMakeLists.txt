@@ -33,6 +33,7 @@ endif()
 set(SOURCES_C
     ${PROJECT_SOURCE_DIR}/src/abs/MN_abs.c
     ${PROJECT_SOURCE_DIR}/src/add/MN_add.c
+    ${PROJECT_SOURCE_DIR}/src/sub/MN_sub.c
     # Add other C implementation files here as you create them
 )
 
@@ -40,6 +41,7 @@ if(NEON_SUPPORTED)
     set(SOURCES_NEON
         ${PROJECT_SOURCE_DIR}/src/abs/MN_abs_neon.c
         ${PROJECT_SOURCE_DIR}/src/add/MN_add_neon.c
+        ${PROJECT_SOURCE_DIR}/src/sub/MN_sub_neon.c
     )
     set(SOURCES ${SOURCES_C} ${SOURCES_NEON})
 else()
@@ -59,10 +61,12 @@ add_library(MATHNEON STATIC ${SOURCES})
 enable_testing()
 add_executable(test_abs test/test_abs_neon.c)
 add_executable(test_add test/test_add_neon.c)
+add_executable(test_sub test/test_sub_neon.c)
 target_link_libraries(test_abs PRIVATE MATHNEON)
 target_link_libraries(test_add PRIVATE MATHNEON)
 add_test(NAME test_abs COMMAND test_abs)
 add_test(NAME test_add COMMAND test_add)
+add_test(NAME test_sub COMMAND test_sub)
 
 # ===== Install Setup =====
 install(TARGETS MATHNEON
