@@ -2,8 +2,6 @@ name: Build MATHNEON on Windows ARM64
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * *"   # run nightly at 00:00 UTC
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
