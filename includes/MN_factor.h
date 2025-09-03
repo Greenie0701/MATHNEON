@@ -54,51 +54,10 @@ extern "C" {
    else if ( (void *)arg3 > (void *)arg2 ) \
     { assert ( (void *)arg2 + count <= (void *)arg3 ); }
 
-/**
- * @brief Shorthand for calling MN_CHECK_DstSRC.
- *
- * Used inside functions like:
- * @code
- * mn_result_t mn_abs_int_c(mn_int32_t* dst, mn_int32_t* src, mn_uint32_t count) {
- *     MN_ASSERT_DS;
- *     ...
- * }
- * @endcode
- */
+
 #define MN_ASSERT_DS MN_CHECK_DstSRC
 #define MN_ASSERT_DS1S2(dst, src1, src2) MN_CHECK_Dst1SRC1SRC2(dst, src1, src2)
 
-
-/*
-===========================================================================
-            MN-style Macros for Absolute Value (fabs) Operations
-===========================================================================
-These macros provide a convenient NEON-accelerated implementation for
-computing the absolute value of float/int32 arrays. They handle both
-SIMD vectorized processing for performance and leftover elements
-when the number of floats/int32 is not a multiple of 4.
-Notes:
-- These macros are intended for single-precision floating point (float32) 
-  and int32 arrays.
-- They follow the MN style of separating SIMD main loop and scalar leftover loop.
-- Using these macros ensures consistent SIMD processing while safely handling arrays
-  whose length is not divisible by 4.
-===========================================================================
-*/
-
-/*
-    1. MN_DstSrc_DO_COUNT_TIMES_FLOAT/INT32_NEON(loopCode1, loopCode2)
-       ---------------------------------------------------------------
-       - Main macro that drives the loop over 'count' elements.
-       - loopCode1: Code to process a block of 4 floats/int32 using NEON.
-       - loopCode2: Code to process remaining floats/int32 (1-3) when count % 4 != 0.
-       - Automatically handles pointer checking (MN_ASSERT_DS) and loop division.
-       - Example usage for float:
-            MN_ABS_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(
-                MN_MAINLOOP_FLOAT_NEON_ABS,   // SIMD block
-                MN_SECONDLOOP_FLOAT_ABS       // leftover elements
-            );
-*/
 
 #define MN_ABS_DstSrc_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
     MN_ASSERT_DS; /* check dst/src pointers does not overlap*/ \
@@ -212,14 +171,6 @@ Notes:
    return res; \
 }
 
-/*
-    2. MN_MAINLOOP_FLOAT/INT32_NEON_ABS
-       -------------------------------
-       - Loads 4 values from memory
-       - Computes absolute values in parallel
-       - Stores the results back 
-       - Advances the source and destination pointers by 4.
-*/
 #define MN_MAINLOOP_FLOAT_NEON_ABS { \
     n_src = vld1q_f32((float32_t*)src); /* load 4 floats */ \
     n_dst = vabsq_f32(n_src);           /* compute abs */ \
@@ -306,11 +257,7 @@ Notes:
      vst1q_s32 ( (int32_t*)dst , n_dst );  /* The main loop iterates through one 4D vector each time */ \
      dst ++; \
 }
-/*
-    3. MN_SECONDLOOP_FLOAT/INT32_ABS
-       ----------------------------
-       - Handles leftover scalar elements (1-3 floats/int32 or vector) when count % 4 != 0.
-*/
+
 #define MN_SECONDLOOP_FLOAT_ABS { \
     *dst++ = fabsf(*src++); \
 }
