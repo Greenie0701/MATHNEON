@@ -147,7 +147,7 @@ extern "C" {
 
 #define MN_ADDC_DstSrcCst_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
     MN_ASSERT_DS; \
-    float32x4_t n_cst = { cst, cst, cst, cst }; \
+    float32x4_t n_cst = vdupq_n_f32(cst); \
     MN_ADDC_DstSrcCst_OPERATION_FLOAT_NEON(  \
         MN_ADDC_DstSrcCst_MAINLOOP_FLOAT_NEON(loopCode1); , \
         MN_ADDC_DstSrcCst_SECONDLOOP_FLOAT_NEON(loopCode2); \
@@ -179,7 +179,7 @@ extern "C" {
 
 #define MN_ADDC_DstSrcCst_DO_COUNT_TIMES_INT32_NEON(loopCode1, loopCode2) { \
     MN_ASSERT_DS; \
-    int32x4_t n_cst = { cst, cst, cst, cst }; \
+    int32x4_t  n_cst = vdupq_n_s32((int32_t)cst); \
     MN_ADDC_DstSrcCst_OPERATION_INT32_NEON(  \
         MN_ADDC_DstSrcCst_MAINLOOP_INT32_NEON(loopCode1); , \
         MN_ADDC_DstSrcCst_SECONDLOOP_INT32_NEON(loopCode2); \
