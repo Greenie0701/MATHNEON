@@ -35,6 +35,7 @@ set(SOURCES_C
     ${PROJECT_SOURCE_DIR}/src/add/MN_add.c
     ${PROJECT_SOURCE_DIR}/src/addc/MN_addc.c
     ${PROJECT_SOURCE_DIR}/src/sub/MN_sub.c
+    ${PROJECT_SOURCE_DIR}/src/subc/MN_subc.c
     # Add other C implementation files here as you create them
 )
 
@@ -44,6 +45,7 @@ if(NEON_SUPPORTED)
         ${PROJECT_SOURCE_DIR}/src/add/MN_add_neon.c
         ${PROJECT_SOURCE_DIR}/src/addc/MN_addc_neon.c
         ${PROJECT_SOURCE_DIR}/src/sub/MN_sub_neon.c
+        ${PROJECT_SOURCE_DIR}/src/subc/MN_subc_neon.c
     )
     set(SOURCES ${SOURCES_C} ${SOURCES_NEON})
 else()
