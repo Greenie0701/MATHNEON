@@ -853,6 +853,279 @@ extern "C" {
      dst++; \
 }
 
+#define MN_ADDC_DstSrcCst_MAINLOOP_FLOAT_NEON(loopCode) { \
+     /* load 4 values  */ \
+     n_src = vld1q_f32( (float32_t*)src ); \
+     src += 4; /* move to the next 4 float items; 4*float */ \
+     loopCode;
+     vst1q_f32 ( (float32_t*)dst , n_dst ); /* store the results back */ \
+     dst += 4; /* move to the next items; 4*float */ \
+    }
+
+#define MN_ADDC_DstSrcCst_SECONDLOOP_FLOAT_NEON(loopCode) { \
+      float32x2_t n_rest = { 0.0f , 0.0f }; /* temporary storage to be used with NEON load/store intrinsics */ \
+      float32x2_t n_rest_cst = { cst, cst }; /* temporary constant value for use in the main NEON operation */ \
+      n_rest = vld1_lane_f32 ( (float32_t*)src, n_rest, 0); /* load into the first lane of d0 */ \
+      loopCode; /* the actual operation is placed here ... */ /* exceptional cases where the count is not a multiple of 4 */ \
+      vst1_lane_f32( (float32_t*)dst, n_rest, 0); /* store the lane back into the memory */ \
+      /* move to the next item in the stream */ \
+      src++; \
+      dst++; \
+     }
+
+#define MN_ADDC_DstSrcCst_OPERATION_FLOAT_NEON(loopCode1, loopCode2) { \
+   mn_result_t res = MN_OK; \
+   float32x4_t n_src; \
+   float32x4_t n_dst; \
+   int dif = 0; \
+   dif = count % 4; /* either 0 or one of 1,2,3; in the latter cases the second path is taken */ \
+   for (; count > dif; count -= 4) { \
+     loopCode1; \
+    } \
+   if ( 0 != dif ) { \
+    unsigned int idx; \
+    for ( idx = 0 ; idx < dif; idx++ ) { \
+      loopCode2; \
+     } \
+    } \
+   return res; \
+  }
+
+#define MN_ADDC_DstSrcCst_MAINLOOP_VEC2F_NEON(loopCode) { \
+     n_src = vld1q_f32( (float32_t*)src ); /* load two vectors */ \
+     src += 2; /* move to the next two vectors */ \
+     loopCode; /* actual operation */ /* The main loop iterates through two 2D vectors each time */ \
+     vst1q_f32 ( (float32_t*)dst , n_dst ); /* store back */ \
+     dst += 2; /* move to the next 2 vectors */ \
+    }
+
+#define MN_ADDC_DstSrcCst_SECONDLOOP_VEC2F_NEON(loopCode) { \
+     float32x2_t n_rest; \
+     float32x2_t n_rest_cst = { cst->x, cst->y }; \
+     n_rest = vld1_f32( (float32_t*)src  ); \
+     loopCode; /* exceptional cases where the count isn't a multiple of 2 */ \
+     vst1_f32( (float32_t*)dst, n_rest); \
+    }
+
+#define MN_ADDC_DstSrcCst_OPERATION_VEC2F_NEON(loopCode1, loopCode2) { \
+   mn_result_t res = MN_OK; \
+   float32x4_t n_cst = { cst->x, cst->y, cst->x, cst->y }; \
+   float32x4_t n_src; \
+   float32x4_t n_dst; \
+   int dif = count % 2; \
+   for (; count > dif; count -= 2) { \
+    loopCode1; \
+   } \
+   if ( 0 != dif ) { \
+    loopCode2; \
+   } \
+   return res; \
+  }
+
+#define MN_ADDC_DstSrcCst_MAINLOOP_VEC3F_NEON(loopCode) { \
+     n_src1 = vld1q_f32( (float32_t*)src ); \
+     src = ((void*)src)+(4*sizeof(mn_float32_t)); \
+     n_src2 = vld1q_f32( (float32_t*)src ); \
+     src = ((void*)src)+(4*sizeof(mn_float32_t)); \
+     n_src3 = vld1q_f32( (float32_t*)src ); \
+     src = ((void*)src)+(4*sizeof(mn_float32_t)); \
+     loopCode; /* The main loop iterates through three 3D vectors each time */ \
+     vst1q_f32 ( (float32_t*)dst , n_dst1 ); \
+     dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
+     vst1q_f32 ( (float32_t*)dst , n_dst2 ); \
+     dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
+     vst1q_f32 ( (float32_t*)dst , n_dst3 ); \
+     dst = ((void*)dst)+(4*sizeof(mn_float32_t)); \
+  }
+
+#define MN_ADDC_DstSrcCst_SECONDLOOP_VEC3F_NEON(loopCode) { \
+      float32x2x3_t n_rest = FLOAT32_2x3( \
+        0.0f, 0.0f, 0.0f , 0.0f, 0.0f , 0.0f); \
+      float32x2x3_t n_rest_cst = { (const float32x2_t){cst->x, 0}, \
+             (const float32x2_t){cst->y, 0}, (const float32x2_t){cst->z, 0} }; \
+      n_rest = vld3_lane_f32 ( (float32_t*)src, n_rest, 0); \
+      loopCode; /* exceptional cases where the count isn't a multiple of 3 */ \
+      vst3_lane_f32( (float32_t*)dst, n_rest, 0); \
+      src++; \
+      dst++; \
+     }
+
+#define MN_ADDC_DstSrcCst_OPERATION_VEC3F_NEON(loopCode1, loopCode2) { \
+   mn_result_t res = MN_OK; \
+   float32x4_t n_cst1 = { cst->x, cst->y, cst->z, cst->x }; \
+   float32x4_t n_cst2 = { cst->y, cst->z, cst->x, cst->y }; \
+   float32x4_t n_cst3 = { cst->z, cst->x, cst->y, cst->z }; \
+    float32x4_t n_src1, n_src2, n_src3; \
+   float32x4_t n_dst1, n_dst2, n_dst3; \
+   int dif = count % 4;  \
+   for (; count > dif; count -= 4) { \
+    loopCode1; \
+  } \
+  if ( 0 != dif ) { \
+    unsigned int idx; \
+    for ( idx = 0 ; idx < dif; idx++ ) { \
+      loopCode2; \
+     } \
+    } \
+   return res; \
+  }
+
+
+#define MN_ADDC_DstSrcCst_MAINLOOP_VEC4F_NEON(loopCode) { \
+     n_src = vld1q_f32( (float32_t*)src ); \
+     src ++; \
+     loopCode; \
+     vst1q_f32 ( (float32_t*)dst , n_dst );
+     dst ++; \
+   }
+
+#define MN_ADDC_DstSrcCst_OPERATION_VEC4F_NEON(loopCode) { \
+   mn_result_t res = MN_OK; \
+   float32x4_t n_cst = { cst->x, cst->y, cst->z, cst->w }; \
+   float32x4_t n_src; \
+   float32x4_t n_dst; \
+   for (; count != 0; count --) { \
+     loopCode; \
+    } \
+   return res; \
+  }
+
+#define MN_ADDC_DstSrcCst_MAINLOOP_INT32_NEON(loopCode) { \
+     /* load 4 values  */ \
+     n_src = vld1q_s32( (int32_t*)src ); \
+     src += 4; /* move to the next 4 int items; 4*int */ \
+     loopCode;
+     vst1q_s32 ( (int32_t*)dst , n_dst ); /* store the results back */ \
+     dst += 4; /* move to the next items; 4*int */ \
+    }
+
+#define MN_ADDC_DstSrcCst_SECONDLOOP_INT32_NEON(loopCode) { \
+      int32x2_t n_rest = { 0.0f , 0.0f }; /* temporary storage to be used with NEON load/store intrinsics */ \
+      int32x2_t n_rest_cst = { cst, cst }; /* temporary constant value for use in the main NEON operation */ \
+      n_rest = vld1_lane_s32 ( (int32_t*)src, n_rest, 0); /* load into the first lane of d0 */ \
+      loopCode; /* the actual operation is placed here ... */ /* exceptional cases where the count is not a multiple of 4 */ \
+      vst1_lane_s32( (int32_t*)dst, n_rest, 0); /* store the lane back into the memory */ \
+      /* move to the next item in the stream */ \
+      src++; \
+      dst++; \
+     }
+
+#define MN_ADDC_DstSrcCst_OPERATION_INT32_NEON(loopCode1, loopCode2) { \
+   mn_result_t res = MN_OK; \
+   int32x4_t n_src; \
+   int32x4_t n_dst; \
+   int dif = 0; \
+   dif = count % 4; /* either 0 or one of 1,2,3; in the latter cases the second path is taken */ \
+   for (; count > dif; count -= 4) { \
+     loopCode1; \
+    } \
+   if ( 0 != dif ) { \
+    unsigned int idx; \
+    for ( idx = 0 ; idx < dif; idx++ ) { \
+      loopCode2; \
+     } \
+    } \
+   return res; \
+  }
+
+#define MN_ADDC_DstSrcCst_MAINLOOP_VEC2I_NEON(loopCode) { \
+     n_src = vld1q_s32( (int32_t*)src ); /* load two vectors */ \
+     src += 2; /* move to the next two vectors */ \
+     loopCode; /* actual operation */ /* The main loop iterates through two 2D vectors each time */ \
+     vst1q_s32 ( (int32_t*)dst , n_dst ); /* store back */ \
+     dst += 2; /* move to the next 2 vectors */ \
+    }
+
+#define MN_ADDC_DstSrcCst_SECONDLOOP_VEC2I_NEON(loopCode) { \
+     int32x2_t n_rest; \
+     int32x2_t n_rest_cst = { cst->x, cst->y }; \
+     n_rest = vld1_s32( (int32_t*)src  ); \
+     loopCode; /* exceptional cases where the count isn't a multiple of 2 */ \
+     vst1_s32( (int32_t*)dst, n_rest); \
+    }
+
+#define MN_ADDC_DstSrcCst_OPERATION_VEC2I_NEON(loopCode1, loopCode2) { \
+   mn_result_t res = MN_OK; \
+   int32x4_t n_cst = { cst->x, cst->y, cst->x, cst->y }; \
+   int32x4_t n_src; \
+   int32x4_t n_dst; \
+   int dif = count % 2; \
+   for (; count > dif; count -= 2) { \
+    loopCode1; \
+   } \
+   if ( 0 != dif ) { \
+    loopCode2; \
+   } \
+   return res; \
+  }
+
+#define MN_ADDC_DstSrcCst_MAINLOOP_VEC3I_NEON(loopCode) { \
+     n_src1 = vld1q_s32( (int32_t*)src ); \
+     src = ((void*)src)+(4*sizeof(mn_int32_t)); \
+     n_src2 = vld1q_s32( (int32_t*)src ); \
+     src = ((void*)src)+(4*sizeof(mn_int32_t)); \
+     n_src3 = vld1q_s32( (int32_t*)src ); \
+     src = ((void*)src)+(4*sizeof(mn_int32_t)); \
+     loopCode; /* The main loop iterates through three 3D vectors each time */ \
+     vst1q_s32 ( (int32_t*)dst , n_dst1 ); \
+     dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
+     vst1q_s32 ( (int32_t*)dst , n_dst2 ); \
+     dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
+     vst1q_s32 ( (int32_t*)dst , n_dst3 ); \
+     dst = ((void*)dst)+(4*sizeof(mn_int32_t)); \
+  }
+
+#define MN_ADDC_DstSrcCst_SECONDLOOP_VEC3I_NEON(loopCode) { \
+      int32x2x3_t n_rest = INT3232_2x3( \
+        0.0f, 0.0f, 0.0f , 0.0f, 0.0f , 0.0f); \
+      int32x2x3_t n_rest_cst = { (const int32x2_t){cst->x, 0}, \
+             (const int32x2_t){cst->y, 0}, (const int32x2_t){cst->z, 0} }; \
+      n_rest = vld3_lane_s32 ( (int32_t*)src, n_rest, 0); \
+      loopCode; /* exceptional cases where the count isn't a multiple of 3 */ \
+      vst3_lane_s32( (int32_t*)dst, n_rest, 0); \
+      src++; \
+      dst++; \
+     }
+
+#define MN_ADDC_DstSrcCst_OPERATION_VEC3I_NEON(loopCode1, loopCode2) { \
+   mn_result_t res = MN_OK; \
+   int32x4_t n_cst1 = { cst->x, cst->y, cst->z, cst->x }; \
+   int32x4_t n_cst2 = { cst->y, cst->z, cst->x, cst->y }; \
+   int32x4_t n_cst3 = { cst->z, cst->x, cst->y, cst->z }; \
+    int32x4_t n_src1, n_src2, n_src3; \
+   int32x4_t n_dst1, n_dst2, n_dst3; \
+   int dif = count % 4;  \
+   for (; count > dif; count -= 4) { \
+    loopCode1; \
+  } \
+  if ( 0 != dif ) { \
+    unsigned int idx; \
+    for ( idx = 0 ; idx < dif; idx++ ) { \
+      loopCode2; \
+     } \
+    } \
+   return res; \
+  }
+
+#define MN_ADDC_DstSrcCst_MAINLOOP_VEC4I_NEON(loopCode) { \
+     n_src = vld1q_s32( (int32_t*)src ); \
+     src ++; \
+     loopCode; \
+     vst1q_s32 ( (int32_t*)dst , n_dst );
+     dst ++; \
+   }
+
+#define MN_ADDC_DstSrcCst_OPERATION_VEC4I_NEON(loopCode) { \
+   mn_result_t res = MN_OK; \
+   int32x4_t n_cst = { cst->x, cst->y, cst->z, cst->w }; \
+   int32x4_t n_src; \
+   int32x4_t n_dst; \
+   for (; count != 0; count --) { \
+     loopCode; \
+    } \
+   return res; \
+  }
+
 // -----------------------------------------------------------------------------
 // End of header guards
 // -----------------------------------------------------------------------------
