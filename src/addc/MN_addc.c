@@ -1,6 +1,8 @@
 #include "MN_dtype.h"
-#include "macros.h"
+#include "MN_macro.h"
+#include "MN_math.h"
 #include <assert.h>
+#include <math.h>
 
 mn_result_t mn_addc_float_c (mn_float32_t * dst, mn_float32_t * src, const mn_float32_t cst, mn_uint32_t count)
 {
