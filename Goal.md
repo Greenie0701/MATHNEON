@@ -7,6 +7,6 @@
 | Add Const     |         Done                |            Done               |          Done with validation                 |                  Done with validation            |
 | Subtract      |         Done                |            Done               |          Done with validation                 |                  Done with validation            |
 | Sub Const     |          Done                |            Done               |          Done with validation                 |                  Done with validation            |
-| Multiply      |                             |                           |                               |                             |
+| Multiply      |         Done                |            Done               |          Done with validation                 |                  Done with validation            |
 
 
