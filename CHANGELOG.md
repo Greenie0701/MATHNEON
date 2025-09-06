@@ -1,3 +1,5 @@
+### Release 1.0:
+
 ### Math NEON abs implementation
 * Added C implementation for float and Int32 datatypes
 * Added Neon C implementation for float and Int32 1-4D arrays
@@ -27,3 +29,5 @@
 * Added C implementation for float and Int32 datatypes
 * Added Neon C implementation for float and Int32 1-4D arrays
 * Added test suite for 1-4D array mul neon implementation
+
+### Release 1.1:
