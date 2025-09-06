@@ -4,7 +4,7 @@
 |---------------|-----------------------------|---------------------------|-------------------------------|-----------------------------|
 | Absolute      |             Done               |           Done                |           Done with validation                 |                  Done with validation            |
 | Add           |             Done                |            Done               |          Done with validation                 |                  Done with validation            |
-| Add Const     |                             |                           |                               |                             |
+| Add Const     |         Done                |            Done               |          Done with validation                 |                  Done with validation            |
 | Subtract      |         Done                |            Done               |          Done with validation                 |                  Done with validation            |
 | Sub Const     |                             |                           |                               |                             |
 | Multiply      |                             |                           |                               |                             |
