@@ -167,7 +167,7 @@ mn_result_t mn_addc_vec4i_neon(mn_vec4i_t *dst, mn_vec4i_t *src, const mn_vec4i_
 
 /**
  * ================================
- * MN ADD-CONSTANT (SUBC) USING C
+ * MN SUB CONSTANT (SUBC) USING C
  * ================================
  */
 
@@ -182,9 +182,9 @@ mn_result_t mn_subc_vec3i_c(mn_vec3i_t *dst, mn_vec3i_t *src, const mn_vec3i_t *
 mn_result_t mn_subc_vec4i_c(mn_vec4i_t *dst, mn_vec4i_t *src, const mn_vec4i_t *cst, size_t count);
 
 /**
- * ================================
- * MN ADD-CONSTANT (SUBC) USING NEON
- * ================================
+ * =================================
+ * MN SUB CONSTANT (SUBC) USING NEON
+ * =================================
  */
 
 mn_result_t mn_subc_float_neon(mn_float32_t *dst, mn_float32_t *src, mn_float32_t cst, size_t count);
@@ -197,6 +197,49 @@ mn_result_t mn_subc_vec2i_neon(mn_vec2i_t *dst, mn_vec2i_t *src, const mn_vec2i_
 mn_result_t mn_subc_vec3i_neon(mn_vec3i_t *dst, mn_vec3i_t *src, const mn_vec3i_t *cst, size_t count);
 mn_result_t mn_subc_vec4i_neon(mn_vec4i_t *dst, mn_vec4i_t *src, const mn_vec4i_t *cst, size_t count);
 
+/**
+ * ================================
+ * MN MUL OPERATOR USING C
+ * ================================
+ */
+
+/**
+ * @brief multiply two int arrays.
+ */
+mn_result_t mn_mul_int32_c(mn_int32_t *dst, mn_int32_t *src1, mn_int32_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec2i_c(mn_vec2i_t *dst, mn_vec2i_t *src1, mn_vec2i_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec3i_c(mn_vec3i_t *dst, mn_vec3i_t *src1, mn_vec3i_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec4i_c(mn_vec4i_t *dst, mn_vec4i_t *src1, mn_vec4i_t *src2, mn_uint32_t count);
+
+/**
+ * @brief multiply two float arrays.
+ */
+mn_result_t mn_mul_float_c(mn_float32_t *dst, mn_float32_t *src1, mn_float32_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec2f_c(mn_vec2f_t *dst, mn_vec2f_t *src1, mn_vec2f_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec3f_c(mn_vec3f_t *dst, mn_vec3f_t *src1, mn_vec3f_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec4f_c(mn_vec4f_t *dst, mn_vec4f_t *src1, mn_vec4f_t *src2, mn_uint32_t count);
+
+/**
+ * ================================
+ * MN MUL OPERATOR USING NEON
+ * ================================
+ */
+
+/**
+ * @brief multiply two float arrays using NEON.
+ */
+mn_result_t mn_mul_float_neon(mn_float32_t *dst, mn_float32_t *src1, mn_float32_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec2f_neon(mn_vec2f_t *dst, mn_vec2f_t *src1, mn_vec2f_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec3f_neon(mn_vec3f_t *dst, mn_vec3f_t *src1, mn_vec3f_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec4f_neon(mn_vec4f_t *dst, mn_vec4f_t *src1, mn_vec4f_t *src2, mn_uint32_t count);
+
+/**
+ * @brief multiply two int arrays using NEON.
+ */
+mn_result_t mn_mul_int32_neon(mn_int32_t *dst, mn_int32_t *src1, mn_int32_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec2i_neon(mn_vec2i_t *dst, mn_vec2i_t *src1, mn_vec2i_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec3i_neon(mn_vec3i_t *dst, mn_vec3i_t *src1, mn_vec3i_t *src2, mn_uint32_t count);
+mn_result_t mn_mul_vec4i_neon(mn_vec4i_t *dst, mn_vec4i_t *src1, mn_vec4i_t *src2, mn_uint32_t count);
 
 #ifdef __cplusplus
 }
