@@ -1070,11 +1070,11 @@ extern "C" {
      src = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_int32_t)); \
      loopCode; /* The main loop iterates through three 3D vectors each time */ \
      vst1q_s32 ( (int32_t*)dst , n_dst1 ); \
-     dst = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
+     dst = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
      vst1q_s32 ( (int32_t*)dst , n_dst2 ); \
-     dst = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
+     dst = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
      vst1q_s32 ( (int32_t*)dst , n_dst3 ); \
-     dst = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
+     dst = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
   }
 
 #define MN_ADDC_DstSrcCst_SECONDLOOP_VEC3I_NEON(loopCode) { \
