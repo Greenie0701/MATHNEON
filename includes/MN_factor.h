@@ -995,13 +995,12 @@ extern "C" {
   }
 
 #define MN_ADDC_DstSrcCst_MAINLOOP_INT32_NEON(loopCode) { \
-     /* load 4 values  */ \
      n_src = vld1q_s32( (int32_t*)src ); \
-     src += 4; /* move to the next 4 int items; 4*int */ \
-     loopCode;
-     vst1q_s32 ( (int32_t*)dst , n_dst ); /* store the results back */ \
-     dst += 4; /* move to the next items; 4*int */ \
-    }
+     src += 4; \
+     loopCode; \
+     vst1q_s32 ( (int32_t*)dst , n_dst ); \
+     dst += 4; \
+}
 
 #define MN_ADDC_DstSrcCst_SECONDLOOP_INT32_NEON(loopCode) { \
       int32x2_t n_rest = { 0 , 0 }; \
