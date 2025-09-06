@@ -50,7 +50,7 @@ mn_result_t mn_addc_vec4f_c (mn_vec4f_t * dst, mn_vec4f_t * src, const mn_vec4f_
     return MN_OK;
 }
 
-mn_result_t mn_addc_int_c (mn_int32_t * dst, mn_int32_t * src, const mn_int32_t cst, mn_uint32_t count)
+mn_result_t mn_addc_int32_c (mn_int32_t * dst, mn_int32_t * src, const mn_int32_t cst, mn_uint32_t count)
 {
     MN_ASSERT_DS;
     for ( unsigned int itr = 0; itr < count; itr++ )
