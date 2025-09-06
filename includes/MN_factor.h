@@ -853,7 +853,6 @@ extern "C" {
      dst++; \
 }
 
-
 #define MN_ADDC_DstSrcCst_MAINLOOP_FLOAT_NEON(loopCode) { \
      n_src = vld1q_f32( (float32_t*)src ); \
      src += 4; \
@@ -863,8 +862,8 @@ extern "C" {
     }
 
 #define MN_ADDC_DstSrcCst_SECONDLOOP_FLOAT_NEON(loopCode) { \
-      float32x2_t n_rest = { 0.0f , 0.0f }; \
-      float32x2_t n_rest_cst = { cst, cst }; \
+      float32x2_t n_rest = vdup_n_f32(0.0f); \
+      float32x2_t n_rest_cst = vdup_n_f32(cst); \
       n_rest = vld1_lane_f32 ( (float32_t*)src, n_rest, 0); \
       loopCode; \
       vst1_lane_f32( (float32_t*)dst, n_rest, 0); \
@@ -876,7 +875,7 @@ extern "C" {
    mn_result_t res = MN_OK; \
    float32x4_t n_src; \
    float32x4_t n_dst; \
-   int dif = 0; \
+   unsigned int dif = 0; \
    dif = count % 4; \
    for (; count > dif; count -= 4) { \
      loopCode1; \
@@ -891,27 +890,33 @@ extern "C" {
   }
 
 #define MN_ADDC_DstSrcCst_MAINLOOP_VEC2F_NEON(loopCode) { \
-     n_src = vld1q_f32( (float32_t*)src ); /* load two vectors */ \
-     src += 2; /* move to the next two vectors */ \
-     loopCode; /* actual operation */ /* The main loop iterates through two 2D vectors each time */ \
-     vst1q_f32 ( (float32_t*)dst , n_dst ); /* store back */ \
-     dst += 2; /* move to the next 2 vectors */ \
+     n_src = vld1q_f32( (float32_t*)src ); \
+     src += 2; \
+     loopCode; \
+     vst1q_f32 ( (float32_t*)dst , n_dst ); \
+     dst += 2; \
     }
 
 #define MN_ADDC_DstSrcCst_SECONDLOOP_VEC2F_NEON(loopCode) { \
      float32x2_t n_rest; \
-     float32x2_t n_rest_cst = { cst->x, cst->y }; \
+     float32x2_t n_rest_cst; \
+     n_rest_cst = vset_lane_f32(cst->x, n_rest_cst, 0); \
+     n_rest_cst = vset_lane_f32(cst->y, n_rest_cst, 1); \
      n_rest = vld1_f32( (float32_t*)src  ); \
-     loopCode; /* exceptional cases where the count isn't a multiple of 2 */ \
+     loopCode; \
      vst1_f32( (float32_t*)dst, n_rest); \
     }
 
 #define MN_ADDC_DstSrcCst_OPERATION_VEC2F_NEON(loopCode1, loopCode2) { \
    mn_result_t res = MN_OK; \
-   float32x4_t n_cst = { cst->x, cst->y, cst->x, cst->y }; \
+   float32x4_t n_cst; \
+   n_cst = vsetq_lane_f32(cst->x, n_cst, 0); \
+   n_cst = vsetq_lane_f32(cst->y, n_cst, 1); \
+   n_cst = vsetq_lane_f32(cst->x, n_cst, 2); \
+   n_cst = vsetq_lane_f32(cst->y, n_cst, 3); \
    float32x4_t n_src; \
    float32x4_t n_dst; \
-   int dif = count % 2; \
+   unsigned int dif = count % 2; \
    for (; count > dif; count -= 2) { \
     loopCode1; \
    } \
@@ -922,46 +927,59 @@ extern "C" {
   }
 
 #define MN_ADDC_DstSrcCst_MAINLOOP_VEC3F_NEON(loopCode) { \
-     n_src1 = vld1q_f32( (float32_t*)src ); \
-     src = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
-     n_src2 = vld1q_f32( (float32_t*)src ); \
-     src = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
-     n_src3 = vld1q_f32( (float32_t*)src ); \
-     src = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
+     mn_vec3f_t* src_ptr = src; \
+     n_src1 = vld1q_f32( (float32_t*)src_ptr ); \
+     src_ptr = (mn_vec3f_t*)((char*)src_ptr + 4 * sizeof(mn_float32_t)); \
+     n_src2 = vld1q_f32( (float32_t*)src_ptr ); \
+     src_ptr = (mn_vec3f_t*)((char*)src_ptr + 4 * sizeof(mn_float32_t)); \
+     n_src3 = vld1q_f32( (float32_t*)src_ptr ); \
+     src_ptr = (mn_vec3f_t*)((char*)src_ptr + 4 * sizeof(mn_float32_t)); \
+     src = src_ptr; \
      loopCode; \
-     vst1q_f32 ( (float32_t*)dst , n_dst1 ); \
-     dst = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
-     vst1q_f32 ( (float32_t*)dst , n_dst2 ); \
-     dst = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
-     vst1q_f32 ( (float32_t*)dst , n_dst3 ); \
-     dst = (mn_vec3f_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
+     mn_vec3f_t* dst_ptr = dst; \
+     vst1q_f32 ( (float32_t*)dst_ptr , n_dst1 ); \
+     dst_ptr = (mn_vec3f_t*)((char*)dst_ptr + 4 * sizeof(mn_float32_t)); \
+     vst1q_f32 ( (float32_t*)dst_ptr , n_dst2 ); \
+     dst_ptr = (mn_vec3f_t*)((char*)dst_ptr + 4 * sizeof(mn_float32_t)); \
+     vst1q_f32 ( (float32_t*)dst_ptr , n_dst3 ); \
+     dst_ptr = (mn_vec3f_t*)((char*)dst_ptr + 4 * sizeof(mn_float32_t)); \
+     dst = dst_ptr; \
   }
 
 #define MN_ADDC_DstSrcCst_SECONDLOOP_VEC3F_NEON(loopCode) { \
-      float32x2x3_t n_rest = {{ \
-        {0.0f, 0.0f}, \
-        {0.0f, 0.0f}, \
-        {0.0f, 0.0f} \
-      }}; \
-      float32x2x3_t n_rest_cst = {{ \
-        {cst->x, 0.0f}, \
-        {cst->y, 0.0f}, \
-        {cst->z, 0.0f} \
-      }}; \
+      float32x2x3_t n_rest; \
+      float32x2x3_t n_rest_cst; \
+      n_rest.val[0] = vdup_n_f32(0.0f); \
+      n_rest.val[1] = vdup_n_f32(0.0f); \
+      n_rest.val[2] = vdup_n_f32(0.0f); \
+      n_rest_cst.val[0] = vset_lane_f32(cst->x, n_rest_cst.val[0], 0); \
+      n_rest_cst.val[1] = vset_lane_f32(cst->y, n_rest_cst.val[1], 0); \
+      n_rest_cst.val[2] = vset_lane_f32(cst->z, n_rest_cst.val[2], 0); \
       n_rest = vld3_lane_f32 ( (float32_t*)src, n_rest, 0); \
       loopCode; \
       vst3_lane_f32( (float32_t*)dst, n_rest, 0); \
       src++; \
       dst++; \
      }
+
 #define MN_ADDC_DstSrcCst_OPERATION_VEC3F_NEON(loopCode1, loopCode2) { \
    mn_result_t res = MN_OK; \
-   float32x4_t n_cst1 = { cst->x, cst->y, cst->z, cst->x }; \
-   float32x4_t n_cst2 = { cst->y, cst->z, cst->x, cst->y }; \
-   float32x4_t n_cst3 = { cst->z, cst->x, cst->y, cst->z }; \
-    float32x4_t n_src1, n_src2, n_src3; \
+   float32x4_t n_cst1, n_cst2, n_cst3; \
+   n_cst1 = vsetq_lane_f32(cst->x, n_cst1, 0); \
+   n_cst1 = vsetq_lane_f32(cst->y, n_cst1, 1); \
+   n_cst1 = vsetq_lane_f32(cst->z, n_cst1, 2); \
+   n_cst1 = vsetq_lane_f32(cst->x, n_cst1, 3); \
+   n_cst2 = vsetq_lane_f32(cst->y, n_cst2, 0); \
+   n_cst2 = vsetq_lane_f32(cst->z, n_cst2, 1); \
+   n_cst2 = vsetq_lane_f32(cst->x, n_cst2, 2); \
+   n_cst2 = vsetq_lane_f32(cst->y, n_cst2, 3); \
+   n_cst3 = vsetq_lane_f32(cst->z, n_cst3, 0); \
+   n_cst3 = vsetq_lane_f32(cst->x, n_cst3, 1); \
+   n_cst3 = vsetq_lane_f32(cst->y, n_cst3, 2); \
+   n_cst3 = vsetq_lane_f32(cst->z, n_cst3, 3); \
+   float32x4_t n_src1, n_src2, n_src3; \
    float32x4_t n_dst1, n_dst2, n_dst3; \
-   int dif = count % 4;  \
+   unsigned int dif = count % 4; \
    for (; count > dif; count -= 4) { \
     loopCode1; \
   } \
@@ -974,7 +992,6 @@ extern "C" {
    return res; \
   }
 
-
 #define MN_ADDC_DstSrcCst_MAINLOOP_VEC4F_NEON(loopCode) { \
      n_src = vld1q_f32( (float32_t*)src ); \
      src ++; \
@@ -985,7 +1002,11 @@ extern "C" {
 
 #define MN_ADDC_DstSrcCst_OPERATION_VEC4F_NEON(loopCode) { \
    mn_result_t res = MN_OK; \
-   float32x4_t n_cst = { cst->x, cst->y, cst->z, cst->w }; \
+   float32x4_t n_cst; \
+   n_cst = vsetq_lane_f32(cst->x, n_cst, 0); \
+   n_cst = vsetq_lane_f32(cst->y, n_cst, 1); \
+   n_cst = vsetq_lane_f32(cst->z, n_cst, 2); \
+   n_cst = vsetq_lane_f32(cst->w, n_cst, 3); \
    float32x4_t n_src; \
    float32x4_t n_dst; \
    for (; count != 0; count --) { \
@@ -1003,8 +1024,8 @@ extern "C" {
 }
 
 #define MN_ADDC_DstSrcCst_SECONDLOOP_INT32_NEON(loopCode) { \
-      int32x2_t n_rest = { 0 , 0 }; \
-      int32x2_t n_rest_cst = { cst, cst }; \
+      int32x2_t n_rest = vdup_n_s32(0); \
+      int32x2_t n_rest_cst = vdup_n_s32(cst); \
       n_rest = vld1_lane_s32 ( (int32_t*)src, n_rest, 0); \
       loopCode; \
       vst1_lane_s32( (int32_t*)dst, n_rest, 0); \
@@ -1016,8 +1037,8 @@ extern "C" {
    mn_result_t res = MN_OK; \
    int32x4_t n_src; \
    int32x4_t n_dst; \
-   int dif = 0; \
-   dif = count % 4; /* either 0 or one of 1,2,3; in the latter cases the second path is taken */ \
+   unsigned int dif = 0; \
+   dif = count % 4; \
    for (; count > dif; count -= 4) { \
      loopCode1; \
     } \
@@ -1031,27 +1052,33 @@ extern "C" {
   }
 
 #define MN_ADDC_DstSrcCst_MAINLOOP_VEC2I_NEON(loopCode) { \
-     n_src = vld1q_s32( (int32_t*)src ); /* load two vectors */ \
-     src += 2; /* move to the next two vectors */ \
-     loopCode; /* actual operation */ /* The main loop iterates through two 2D vectors each time */ \
-     vst1q_s32 ( (int32_t*)dst , n_dst ); /* store back */ \
-     dst += 2; /* move to the next 2 vectors */ \
+     n_src = vld1q_s32( (int32_t*)src ); \
+     src += 2; \
+     loopCode; \
+     vst1q_s32 ( (int32_t*)dst , n_dst ); \
+     dst += 2; \
     }
 
 #define MN_ADDC_DstSrcCst_SECONDLOOP_VEC2I_NEON(loopCode) { \
      int32x2_t n_rest; \
-     int32x2_t n_rest_cst = { cst->x, cst->y }; \
+     int32x2_t n_rest_cst; \
+     n_rest_cst = vset_lane_s32(cst->x, n_rest_cst, 0); \
+     n_rest_cst = vset_lane_s32(cst->y, n_rest_cst, 1); \
      n_rest = vld1_s32( (int32_t*)src  ); \
-     loopCode; /* exceptional cases where the count isn't a multiple of 2 */ \
+     loopCode; \
      vst1_s32( (int32_t*)dst, n_rest); \
     }
 
 #define MN_ADDC_DstSrcCst_OPERATION_VEC2I_NEON(loopCode1, loopCode2) { \
    mn_result_t res = MN_OK; \
-   int32x4_t n_cst = { cst->x, cst->y, cst->x, cst->y }; \
+   int32x4_t n_cst; \
+   n_cst = vsetq_lane_s32(cst->x, n_cst, 0); \
+   n_cst = vsetq_lane_s32(cst->y, n_cst, 1); \
+   n_cst = vsetq_lane_s32(cst->x, n_cst, 2); \
+   n_cst = vsetq_lane_s32(cst->y, n_cst, 3); \
    int32x4_t n_src; \
    int32x4_t n_dst; \
-   int dif = count % 2; \
+   unsigned int dif = count % 2; \
    for (; count > dif; count -= 2) { \
     loopCode1; \
    } \
@@ -1062,32 +1089,34 @@ extern "C" {
   }
 
 #define MN_ADDC_DstSrcCst_MAINLOOP_VEC3I_NEON(loopCode) { \
-     n_src1 = vld1q_s32( (int32_t*)src ); \
-     src = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_int32_t)); \
-     n_src2 = vld1q_s32( (int32_t*)src ); \
-     src = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_int32_t)); \
-     n_src3 = vld1q_s32( (int32_t*)src ); \
-     src = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_int32_t)); \
-     loopCode; /* The main loop iterates through three 3D vectors each time */ \
-     vst1q_s32 ( (int32_t*)dst , n_dst1 ); \
-     dst = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
-     vst1q_s32 ( (int32_t*)dst , n_dst2 ); \
-     dst = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
-     vst1q_s32 ( (int32_t*)dst , n_dst3 ); \
-     dst = (mn_vec3i_t*)((char*)src1 + 4 * sizeof(mn_float32_t)); \
+     mn_vec3i_t* src_ptr = src; \
+     n_src1 = vld1q_s32( (int32_t*)src_ptr ); \
+     src_ptr = (mn_vec3i_t*)((char*)src_ptr + 4 * sizeof(mn_int32_t)); \
+     n_src2 = vld1q_s32( (int32_t*)src_ptr ); \
+     src_ptr = (mn_vec3i_t*)((char*)src_ptr + 4 * sizeof(mn_int32_t)); \
+     n_src3 = vld1q_s32( (int32_t*)src_ptr ); \
+     src_ptr = (mn_vec3i_t*)((char*)src_ptr + 4 * sizeof(mn_int32_t)); \
+     src = src_ptr; \
+     loopCode; \
+     mn_vec3i_t* dst_ptr = dst; \
+     vst1q_s32 ( (int32_t*)dst_ptr , n_dst1 ); \
+     dst_ptr = (mn_vec3i_t*)((char*)dst_ptr + 4 * sizeof(mn_int32_t)); \
+     vst1q_s32 ( (int32_t*)dst_ptr , n_dst2 ); \
+     dst_ptr = (mn_vec3i_t*)((char*)dst_ptr + 4 * sizeof(mn_int32_t)); \
+     vst1q_s32 ( (int32_t*)dst_ptr , n_dst3 ); \
+     dst_ptr = (mn_vec3i_t*)((char*)dst_ptr + 4 * sizeof(mn_int32_t)); \
+     dst = dst_ptr; \
   }
 
 #define MN_ADDC_DstSrcCst_SECONDLOOP_VEC3I_NEON(loopCode) { \
-      int32x2x3_t n_rest = {{ \
-        {0, 0}, \
-        {0, 0}, \
-        {0, 0} \
-      }}; \
-      int32x2x3_t n_rest_cst = {{ \
-        {cst->x, 0}, \
-        {cst->y, 0}, \
-        {cst->z, 0} \
-      }}; \
+      int32x2x3_t n_rest; \
+      int32x2x3_t n_rest_cst; \
+      n_rest.val[0] = vdup_n_s32(0); \
+      n_rest.val[1] = vdup_n_s32(0); \
+      n_rest.val[2] = vdup_n_s32(0); \
+      n_rest_cst.val[0] = vset_lane_s32(cst->x, n_rest_cst.val[0], 0); \
+      n_rest_cst.val[1] = vset_lane_s32(cst->y, n_rest_cst.val[1], 0); \
+      n_rest_cst.val[2] = vset_lane_s32(cst->z, n_rest_cst.val[2], 0); \
       n_rest = vld3_lane_s32 ( (int32_t*)src, n_rest, 0); \
       loopCode; \
       vst3_lane_s32( (int32_t*)dst, n_rest, 0); \
@@ -1097,12 +1126,22 @@ extern "C" {
 
 #define MN_ADDC_DstSrcCst_OPERATION_VEC3I_NEON(loopCode1, loopCode2) { \
    mn_result_t res = MN_OK; \
-   int32x4_t n_cst1 = { cst->x, cst->y, cst->z, cst->x }; \
-   int32x4_t n_cst2 = { cst->y, cst->z, cst->x, cst->y }; \
-   int32x4_t n_cst3 = { cst->z, cst->x, cst->y, cst->z }; \
-    int32x4_t n_src1, n_src2, n_src3; \
+   int32x4_t n_cst1, n_cst2, n_cst3; \
+   n_cst1 = vsetq_lane_s32(cst->x, n_cst1, 0); \
+   n_cst1 = vsetq_lane_s32(cst->y, n_cst1, 1); \
+   n_cst1 = vsetq_lane_s32(cst->z, n_cst1, 2); \
+   n_cst1 = vsetq_lane_s32(cst->x, n_cst1, 3); \
+   n_cst2 = vsetq_lane_s32(cst->y, n_cst2, 0); \
+   n_cst2 = vsetq_lane_s32(cst->z, n_cst2, 1); \
+   n_cst2 = vsetq_lane_s32(cst->x, n_cst2, 2); \
+   n_cst2 = vsetq_lane_s32(cst->y, n_cst2, 3); \
+   n_cst3 = vsetq_lane_s32(cst->z, n_cst3, 0); \
+   n_cst3 = vsetq_lane_s32(cst->x, n_cst3, 1); \
+   n_cst3 = vsetq_lane_s32(cst->y, n_cst3, 2); \
+   n_cst3 = vsetq_lane_s32(cst->z, n_cst3, 3); \
+   int32x4_t n_src1, n_src2, n_src3; \
    int32x4_t n_dst1, n_dst2, n_dst3; \
-   int dif = count % 4;  \
+   unsigned int dif = count % 4; \
    for (; count > dif; count -= 4) { \
     loopCode1; \
   } \
@@ -1125,7 +1164,11 @@ extern "C" {
 
 #define MN_ADDC_DstSrcCst_OPERATION_VEC4I_NEON(loopCode) { \
    mn_result_t res = MN_OK; \
-   int32x4_t n_cst = { cst->x, cst->y, cst->z, cst->w }; \
+   int32x4_t n_cst; \
+   n_cst = vsetq_lane_s32(cst->x, n_cst, 0); \
+   n_cst = vsetq_lane_s32(cst->y, n_cst, 1); \
+   n_cst = vsetq_lane_s32(cst->z, n_cst, 2); \
+   n_cst = vsetq_lane_s32(cst->w, n_cst, 3); \
    int32x4_t n_src; \
    int32x4_t n_dst; \
    for (; count != 0; count --) { \
