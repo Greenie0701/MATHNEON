@@ -6,7 +6,7 @@
 
 /*
 Function Input:
-    dst   - Destination that store results
+    dst   - Destination that store result
     src   - Source that stores user input
     count - Count is an integer that stores number of elements
     fabsf - Calculates the absolute value of the floating-point argument. Refer to MSVC Docs(https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fabsf-fabsff-fabsfl?view=msvc-170)
