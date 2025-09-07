@@ -241,6 +241,38 @@ mn_result_t mn_mul_vec2i_neon(mn_vec2i_t *dst, mn_vec2i_t *src1, mn_vec2i_t *src
 mn_result_t mn_mul_vec3i_neon(mn_vec3i_t *dst, mn_vec3i_t *src1, mn_vec3i_t *src2, mn_uint32_t count);
 mn_result_t mn_mul_vec4i_neon(mn_vec4i_t *dst, mn_vec4i_t *src1, mn_vec4i_t *src2, mn_uint32_t count);
 
+/**
+ * ===================================
+ * MN MULTIPLY CONSTANT (MULC) USING C
+ * ===================================
+ */
+
+mn_result_t mn_mulc_float_c(mn_float32_t *dst, mn_float32_t *src, mn_float32_t cst, size_t count);
+mn_result_t mn_mulc_vec2f_c(mn_vec2f_t *dst, mn_vec2f_t *src, const mn_vec2f_t *cst, size_t count);
+mn_result_t mn_mulc_vec3f_c(mn_vec3f_t *dst, mn_vec3f_t *src, const mn_vec3f_t *cst, size_t count);
+mn_result_t mn_mulc_vec4f_c(mn_vec4f_t *dst, mn_vec4f_t *src, const mn_vec4f_t *cst, size_t count);
+
+mn_result_t mn_mulc_int32_c(mn_int32_t *dst, mn_int32_t *src, mn_int32_t cst, size_t count);
+mn_result_t mn_mulc_vec2i_c(mn_vec2i_t *dst, mn_vec2i_t *src, const mn_vec2i_t *cst, size_t count);
+mn_result_t mn_mulc_vec3i_c(mn_vec3i_t *dst, mn_vec3i_t *src, const mn_vec3i_t *cst, size_t count);
+mn_result_t mn_mulc_vec4i_c(mn_vec4i_t *dst, mn_vec4i_t *src, const mn_vec4i_t *cst, size_t count);
+
+/**
+ * ======================================
+ * MN MULTIPLY CONSTANT (MULC) USING NEON
+ * ======================================
+ */
+
+mn_result_t mn_mulc_float_neon(mn_float32_t *dst, mn_float32_t *src, mn_float32_t cst, size_t count);
+mn_result_t mn_mulc_vec2f_neon(mn_vec2f_t *dst, mn_vec2f_t *src, const mn_vec2f_t *cst, size_t count);
+mn_result_t mn_mulc_vec3f_neon(mn_vec3f_t *dst, mn_vec3f_t *src, const mn_vec3f_t *cst, size_t count);
+mn_result_t mn_mulc_vec4f_neon(mn_vec4f_t *dst, mn_vec4f_t *src, const mn_vec4f_t *cst, size_t count);
+
+mn_result_t mn_mulc_int32_neon(mn_int32_t *dst, mn_int32_t *src, mn_int32_t cst, size_t count);
+mn_result_t mn_mulc_vec2i_neon(mn_vec2i_t *dst, mn_vec2i_t *src, const mn_vec2i_t *cst, size_t count);
+mn_result_t mn_mulc_vec3i_neon(mn_vec3i_t *dst, mn_vec3i_t *src, const mn_vec3i_t *cst, size_t count);
+mn_result_t mn_mulc_vec4i_neon(mn_vec4i_t *dst, mn_vec4i_t *src, const mn_vec4i_t *cst, size_t count);
+
 #ifdef __cplusplus
 }
 #endif
