@@ -37,6 +37,7 @@ set(SOURCES_C
     ${PROJECT_SOURCE_DIR}/src/sub/MN_sub.c
     ${PROJECT_SOURCE_DIR}/src/subc/MN_subc.c
     ${PROJECT_SOURCE_DIR}/src/mul/MN_mul.c
+    ${PROJECT_SOURCE_DIR}/src/mulc/MN_mulc.c
 )
 
 if(NEON_SUPPORTED)
@@ -47,6 +48,7 @@ if(NEON_SUPPORTED)
         ${PROJECT_SOURCE_DIR}/src/sub/MN_sub_neon.c
         ${PROJECT_SOURCE_DIR}/src/subc/MN_subc_neon.c
         ${PROJECT_SOURCE_DIR}/src/mul/MN_mul_neon.c
+        ${PROJECT_SOURCE_DIR}/src/mulc/MN_mulc_neon.c
     )
     set(SOURCES ${SOURCES_C} ${SOURCES_NEON})
 else()
@@ -70,18 +72,21 @@ add_executable(test_sub test/test_sub_neon.c)
 add_executable(test_addc test/test_addc_neon.c)
 add_executable(test_subc test/test_subc_neon.c)
 add_executable(test_mul test/test_mul_neon.c)
+add_executable(test_mulc test/test_mulc_neon.c)
 target_link_libraries(test_abs PRIVATE MATHNEON)
 target_link_libraries(test_add PRIVATE MATHNEON)
 target_link_libraries(test_sub PRIVATE MATHNEON)
 target_link_libraries(test_addc PRIVATE MATHNEON)
 target_link_libraries(test_subc PRIVATE MATHNEON)
 target_link_libraries(test_mul PRIVATE MATHNEON)
+target_link_libraries(test_mulc PRIVATE MATHNEON)
 add_test(NAME test_abs COMMAND test_abs)
 add_test(NAME test_add COMMAND test_add)
 add_test(NAME test_sub COMMAND test_sub)
 add_test(NAME test_addc COMMAND test_addc)
 add_test(NAME test_subc COMMAND test_subc)
 add_test(NAME test_mul COMMAND test_mul)
+add_test(NAME test_mulc COMMAND test_mulc)
 
 # ===== Install Setup =====
 install(TARGETS MATHNEON
