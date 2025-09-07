@@ -386,6 +386,52 @@ extern "C" {
     ); \
 }
 
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC2F_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    MN_DIV_DstSrc1Src2_OPERATION_VEC2F_NEON(  \
+        MN_DIV_DstSrc1Src2_MAINLOOP_VEC2F_NEON(loopCode1); , \
+        MN_DIV_DstSrc1Src2_SECONDLOOP_VEC2F_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC2I_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    MN_DIV_DstSrc1Src2_OPERATION_VEC2I_NEON(  \
+        MN_DIV_DstSrc1Src2_MAINLOOP_VEC2I_NEON(loopCode1); , \
+        MN_DIV_DstSrc1Src2_SECONDLOOP_VEC2I_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC3F_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    MN_DIV_DstSrc1Src2_OPERATION_VEC3F_NEON(  \
+        MN_DIV_DstSrc1Src2_MAINLOOP_VEC3F_NEON(loopCode1); , \
+        MN_DIV_DstSrc1Src2_SECONDLOOP_VEC3F_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC3I_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    MN_DIV_DstSrc1Src2_OPERATION_VEC3I_NEON(  \
+        MN_DIV_DstSrc1Src2_MAINLOOP_VEC3I_NEON(loopCode1); , \
+        MN_DIV_DstSrc1Src2_SECONDLOOP_VEC3I_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC4F_NEON(loopCode) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+        MN_DIV_DstSrc1Src2_OPERATION_VEC4F_NEON( \
+        MN_DIV_DstSrc1Src2_MAINLOOP_VEC4F_NEON(loopCode); \
+    ); \
+}
+
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC4I_NEON(loopCode) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+        MN_DIV_DstSrc1Src2_OPERATION_VEC4I_NEON( \
+        MN_DIV_DstSrc1Src2_MAINLOOP_VEC4I_NEON(loopCode); \
+    ); \
+}
+
 // -----------------------------------------------------------------------------
 // End of header guards
 // -----------------------------------------------------------------------------
