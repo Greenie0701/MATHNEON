@@ -13,7 +13,7 @@
 ### Release 1.1 Goals:
 | Operator       | C Implementation (float32) | C Implementation (int32) | NEON Implementation (float32) | NEON Implementation (int32) |
 | -------------- | -------------------------- | ------------------------ | ----------------------------- | --------------------------- |
-| Multiply Const |                            |                          |                               |                             |
+| Multiply Const |      Done               |           Done                |           Done with validation                 |                  Done with validation            |
 | Division       |                            |                          |                               |                             |
 | Division Const |                            |                          |                               |                             |
 | Add Mat        |                            |                          |                               |                             |
