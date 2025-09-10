@@ -2100,168 +2100,168 @@ extern "C" {
   }
 
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check dst/src1/src2 pointers don't overlap */ \
-    mn_result_t res = MN_OK; \
-    float32x4_t n_src1, n_src2; \
-    float32x4_t n_dst; \
-    float32x2_t n_rest1, n_rest2, n_rest; \
-    uint32_t dif = count % 4; /* finds remaining elements if not division of 4 */ \
-    for (; count > dif; count -= 4) { \
-        loopCode1; \
-    } \
-    if (dif != 0) { \
-        for (uint32_t idx = 0; idx < dif; idx++) { \
-            loopCode2; \
-        } \
-    } \
-    return res; \
-}
+// #define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
+//     MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check dst/src1/src2 pointers don't overlap */ \
+//     mn_result_t res = MN_OK; \
+//     float32x4_t n_src1, n_src2; \
+//     float32x4_t n_dst; \
+//     float32x2_t n_rest1, n_rest2, n_rest; \
+//     uint32_t dif = count % 4; /* finds remaining elements if not division of 4 */ \
+//     for (; count > dif; count -= 4) { \
+//         loopCode1; \
+//     } \
+//     if (dif != 0) { \
+//         for (uint32_t idx = 0; idx < dif; idx++) { \
+//             loopCode2; \
+//         } \
+//     } \
+//     return res; \
+// }
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_INT32_NEON(loopCode1, loopCode2) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check dst/src1/src2 pointers don't overlap */ \
-    mn_result_t res = MN_OK; \
-    int32x4_t n_src1, n_src2; \
-    int32x4_t n_dst; \
-    int32x2_t n_rest1, n_rest2, n_rest; \
-    uint32_t dif = count % 4; /* finds remaining elements if not division of 4 */ \
-    for (; count > dif; count -= 4) { \
-        loopCode1; \
-    } \
-    if (dif != 0) { \
-        for (uint32_t idx = 0; idx < dif; idx++) { \
-            loopCode2; \
-        } \
-    } \
-    return res; \
-}
+// #define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_INT32_NEON(loopCode1, loopCode2) { \
+//     MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check dst/src1/src2 pointers don't overlap */ \
+//     mn_result_t res = MN_OK; \
+//     int32x4_t n_src1, n_src2; \
+//     int32x4_t n_dst; \
+//     int32x2_t n_rest1, n_rest2, n_rest; \
+//     uint32_t dif = count % 4; /* finds remaining elements if not division of 4 */ \
+//     for (; count > dif; count -= 4) { \
+//         loopCode1; \
+//     } \
+//     if (dif != 0) { \
+//         for (uint32_t idx = 0; idx < dif; idx++) { \
+//             loopCode2; \
+//         } \
+//     } \
+//     return res; \
+// }
 
-// Updated MAINLOOP macros for division (using reciprocal approximation)
-#define MN_MAINLOOP_FLOAT_NEON_DIV { \
-    n_src1 = vld1q_f32((float32_t*)src1); /* load 4 floats from src1 */ \
-    n_src2 = vld1q_f32((float32_t*)src2); /* load 4 floats from src2 */ \
-    /* Use reciprocal approximation for division */ \
-    float32x4_t rec = vrecpeq_f32(n_src2); \
-    rec = vmulq_f32(vrecpsq_f32(n_src2, rec), rec); \
-    rec = vmulq_f32(vrecpsq_f32(n_src2, rec), rec); \
-    n_dst = vmulq_f32(n_src1, rec); /* compute division as multiplication by reciprocal */ \
-    vst1q_f32((float32_t*)dst, n_dst);    /* store back */ \
-    src1 += 4; \
-    src2 += 4; \
-    dst += 4; \
-}
+// // Updated MAINLOOP macros for division (using reciprocal approximation)
+// #define MN_MAINLOOP_FLOAT_NEON_DIV { \
+//     n_src1 = vld1q_f32((float32_t*)src1); /* load 4 floats from src1 */ \
+//     n_src2 = vld1q_f32((float32_t*)src2); /* load 4 floats from src2 */ \
+//     /* Use reciprocal approximation for division */ \
+//     float32x4_t rec = vrecpeq_f32(n_src2); \
+//     rec = vmulq_f32(vrecpsq_f32(n_src2, rec), rec); \
+//     rec = vmulq_f32(vrecpsq_f32(n_src2, rec), rec); \
+//     n_dst = vmulq_f32(n_src1, rec); /* compute division as multiplication by reciprocal */ \
+//     vst1q_f32((float32_t*)dst, n_dst);    /* store back */ \
+//     src1 += 4; \
+//     src2 += 4; \
+//     dst += 4; \
+// }
 
-#define MN_MAINLOOP_INT32_NEON_DIV { \
-    n_src1 = vld1q_s32((int32_t*)src1); /* load 4 int32 from src1 */ \
-    n_src2 = vld1q_s32((int32_t*)src2); /* load 4 int32 from src2 */ \
-    /* Convert to float for division, then back to int */ \
-    float32x4_t f_src1 = vcvtq_f32_s32(n_src1); \
-    float32x4_t f_src2 = vcvtq_f32_s32(n_src2); \
-    float32x4_t rec = vrecpeq_f32(f_src2); \
-    rec = vmulq_f32(vrecpsq_f32(f_src2, rec), rec); \
-    rec = vmulq_f32(vrecpsq_f32(f_src2, rec), rec); \
-    float32x4_t f_result = vmulq_f32(f_src1, rec); \
-    n_dst = vcvtq_s32_f32(f_result);  /* convert back to int32 */ \
-    vst1q_s32((int32_t*)dst, n_dst);    /* store back */ \
-    src1 += 4; \
-    src2 += 4; \
-    dst += 4; \
-}
+// #define MN_MAINLOOP_INT32_NEON_DIV { \
+//     n_src1 = vld1q_s32((int32_t*)src1); /* load 4 int32 from src1 */ \
+//     n_src2 = vld1q_s32((int32_t*)src2); /* load 4 int32 from src2 */ \
+//     /* Convert to float for division, then back to int */ \
+//     float32x4_t f_src1 = vcvtq_f32_s32(n_src1); \
+//     float32x4_t f_src2 = vcvtq_f32_s32(n_src2); \
+//     float32x4_t rec = vrecpeq_f32(f_src2); \
+//     rec = vmulq_f32(vrecpsq_f32(f_src2, rec), rec); \
+//     rec = vmulq_f32(vrecpsq_f32(f_src2, rec), rec); \
+//     float32x4_t f_result = vmulq_f32(f_src1, rec); \
+//     n_dst = vcvtq_s32_f32(f_result);  /* convert back to int32 */ \
+//     vst1q_s32((int32_t*)dst, n_dst);    /* store back */ \
+//     src1 += 4; \
+//     src2 += 4; \
+//     dst += 4; \
+// }
 
 
-#define MN_SECONDLOOP_FLOAT_DIV { \
-    *dst++ = *src1++ / *src2++; \
-}
+// #define MN_SECONDLOOP_FLOAT_DIV { \
+//     *dst++ = *src1++ / *src2++; \
+// }
 
-#define MN_SECONDLOOP_INT32_DIV { \
-    *dst++ = *src1++ / *src2++; \
-}
+// #define MN_SECONDLOOP_INT32_DIV { \
+//     *dst++ = *src1++ / *src2++; \
+// }
 
-#define MN_DIV_DstSrc1Src2_OPERATION_VEC2F_NEON(loopCode1, loopCode2) { \
-   mn_result_t res = MN_OK; \
-   float32x4_t n_src1, n_src2; \
-   float32x4_t n_dst; \
-   float32x2_t n_rest1, n_rest2, n_rest; \
-   uint32_t dif = count % 2; \
-   for (; count > dif; count -= 2) { \
-    loopCode1; \
-   } \
-   if ( 0 != dif ) { \
-    loopCode2; \
-   } \
-   return res; \
-}
+// #define MN_DIV_DstSrc1Src2_OPERATION_VEC2F_NEON(loopCode1, loopCode2) { \
+//    mn_result_t res = MN_OK; \
+//    float32x4_t n_src1, n_src2; \
+//    float32x4_t n_dst; \
+//    float32x2_t n_rest1, n_rest2, n_rest; \
+//    uint32_t dif = count % 2; \
+//    for (; count > dif; count -= 2) { \
+//     loopCode1; \
+//    } \
+//    if ( 0 != dif ) { \
+//     loopCode2; \
+//    } \
+//    return res; \
+// }
 
-#define MN_DIV_DstSrc1Src2_OPERATION_VEC2I_NEON(loopCode1, loopCode2) { \
-   mn_result_t res = MN_OK; \
-   int32x4_t n_src1, n_src2; \
-   int32x4_t n_dst; \
-   int32x2_t n_rest1, n_rest2, n_rest; \
-   uint32_t dif = count % 2; \
-   for (; count > dif; count -= 2) { \
-    loopCode1; \
-   } \
-   if ( 0 != dif ) { \
-    loopCode2; \
-   } \
-   return res; \
-}
+// #define MN_DIV_DstSrc1Src2_OPERATION_VEC2I_NEON(loopCode1, loopCode2) { \
+//    mn_result_t res = MN_OK; \
+//    int32x4_t n_src1, n_src2; \
+//    int32x4_t n_dst; \
+//    int32x2_t n_rest1, n_rest2, n_rest; \
+//    uint32_t dif = count % 2; \
+//    for (; count > dif; count -= 2) { \
+//     loopCode1; \
+//    } \
+//    if ( 0 != dif ) { \
+//     loopCode2; \
+//    } \
+//    return res; \
+// }
 
-#define MN_DIV_DstSrc1Src2_OPERATION_VEC3F_NEON(loopCode1, loopCode2) { \
-  mn_result_t res = MN_OK; \
-  float32x4_t n_src11, n_src12, n_src13; \
-  float32x4_t n_src21, n_src22, n_src23; \
-  float32x4_t n_dst1, n_dst2, n_dst3; \
-  uint32_t dif = count % 4;  \
-  for (; count > dif; count -= 4) { \
-   loopCode1; \
-  } \
-  if ( 0 != dif ) { \
-    uint32_t idx; \
-    for ( idx = 0 ; idx < dif; idx++ ) { \
-      loopCode2; \
-    } \
-  } \
-  return res; \
-}
+// #define MN_DIV_DstSrc1Src2_OPERATION_VEC3F_NEON(loopCode1, loopCode2) { \
+//   mn_result_t res = MN_OK; \
+//   float32x4_t n_src11, n_src12, n_src13; \
+//   float32x4_t n_src21, n_src22, n_src23; \
+//   float32x4_t n_dst1, n_dst2, n_dst3; \
+//   uint32_t dif = count % 4;  \
+//   for (; count > dif; count -= 4) { \
+//    loopCode1; \
+//   } \
+//   if ( 0 != dif ) { \
+//     uint32_t idx; \
+//     for ( idx = 0 ; idx < dif; idx++ ) { \
+//       loopCode2; \
+//     } \
+//   } \
+//   return res; \
+// }
 
-#define MN_DIV_DstSrc1Src2_OPERATION_VEC3I_NEON(loopCode1, loopCode2) { \
-  mn_result_t res = MN_OK; \
-  int32x4_t n_src11, n_src12, n_src13; \
-  int32x4_t n_src21, n_src22, n_src23; \
-  int32x4_t n_dst1, n_dst2, n_dst3; \
-  uint32_t dif = count % 4;  \
-  for (; count > dif; count -= 4) { \
-   loopCode1; \
-  } \
-  if ( 0 != dif ) { \
-    uint32_t idx; \
-    for ( idx = 0 ; idx < dif; idx++ ) { \
-      loopCode2; \
-    } \
-  } \
-  return res; \
-}
+// #define MN_DIV_DstSrc1Src2_OPERATION_VEC3I_NEON(loopCode1, loopCode2) { \
+//   mn_result_t res = MN_OK; \
+//   int32x4_t n_src11, n_src12, n_src13; \
+//   int32x4_t n_src21, n_src22, n_src23; \
+//   int32x4_t n_dst1, n_dst2, n_dst3; \
+//   uint32_t dif = count % 4;  \
+//   for (; count > dif; count -= 4) { \
+//    loopCode1; \
+//   } \
+//   if ( 0 != dif ) { \
+//     uint32_t idx; \
+//     for ( idx = 0 ; idx < dif; idx++ ) { \
+//       loopCode2; \
+//     } \
+//   } \
+//   return res; \
+// }
 
-#define MN_DIV_DstSrc1Src2_OPERATION_VEC4F_NEON(loopCode) { \
-   mn_result_t res = MN_OK; \
-   float32x4_t n_src1, n_src2; \
-   float32x4_t n_dst; \
-   for (; count != 0; count --) { \
-     loopCode; \
-    } \
-   return res; \
-}
+// #define MN_DIV_DstSrc1Src2_OPERATION_VEC4F_NEON(loopCode) { \
+//    mn_result_t res = MN_OK; \
+//    float32x4_t n_src1, n_src2; \
+//    float32x4_t n_dst; \
+//    for (; count != 0; count --) { \
+//      loopCode; \
+//     } \
+//    return res; \
+// }
 
-#define MN_DIV_DstSrc1Src2_OPERATION_VEC4I_NEON(loopCode) { \
-   mn_result_t res = MN_OK; \
-   int32x4_t n_src1, n_src2; \
-   int32x4_t n_dst; \
-   for (; count != 0; count --) { \
-     loopCode; \
-    } \
-   return res; \
-}
+// #define MN_DIV_DstSrc1Src2_OPERATION_VEC4I_NEON(loopCode) { \
+//    mn_result_t res = MN_OK; \
+//    int32x4_t n_src1, n_src2; \
+//    int32x4_t n_dst; \
+//    for (; count != 0; count --) { \
+//      loopCode; \
+//     } \
+//    return res; \
+// }
 
 // -----------------------------------------------------------------------------
 // End of header guards
