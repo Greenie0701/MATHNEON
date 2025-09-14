@@ -32,7 +32,7 @@ jobs:
       - name: Install
         run: cmake --install ${{ github.workspace }}/build --config Release --prefix ${{ github.workspace }}/install
 
-      - name: Copy .lib into install dir
+      - name: Move generated artifacts to destination directory
         run: |
           mkdir -Force "${{ github.workspace }}/install/lib"
           copy "${{ github.workspace }}/build/Release/MATHNEON.lib" "${{ github.workspace }}/install/lib/"
