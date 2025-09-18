@@ -31,3 +31,5 @@
 * Added test suite for 1-4D array mul neon implementation
 
 ### Release 1.1:
+
+#TODO - RESEARCH ON DIVISION OPS
