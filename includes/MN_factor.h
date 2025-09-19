@@ -2098,102 +2098,114 @@ extern "C" {
     } \
    return res; \
   }
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+
+// FLOAT operations
+#define MN_DIV_DstSrc1Src2_OPERATION_FLOAT_NEON(mainloop_code, secondloop_code) { \
     mn_result_t res = MN_OK; \
     float32x4_t n_src1, n_src2, n_dst; \
     uint32_t dif = count % 4; \
     for (; count > dif; count -= 4) { \
         n_src1 = vld1q_f32((float32_t*)src1); \
         n_src2 = vld1q_f32((float32_t*)src2); \
-        loopCode1; \
+        mainloop_code \
         vst1q_f32((float32_t*)dst, n_dst); \
         src1 += 4; src2 += 4; dst += 4; \
     } \
     if (dif != 0) { \
         for (uint32_t idx = 0; idx < dif; idx++) { \
-            loopCode2; \
+            secondloop_code \
             src1++; src2++; dst++; \
         } \
     } \
     return res; \
 }
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_INT32_NEON(loopCode1, loopCode2) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+#define MN_DIV_DstSrc1Src2_MAINLOOP_FLOAT_NEON(code) code
+#define MN_DIV_DstSrc1Src2_SECONDLOOP_FLOAT_NEON(code) code
+
+// INT32 operations
+#define MN_DIV_DstSrc1Src2_OPERATION_INT32_NEON(mainloop_code, secondloop_code) { \
     mn_result_t res = MN_OK; \
     int32x4_t n_src1, n_src2, n_dst; \
     uint32_t dif = count % 4; \
     for (; count > dif; count -= 4) { \
         n_src1 = vld1q_s32((int32_t*)src1); \
         n_src2 = vld1q_s32((int32_t*)src2); \
-        loopCode1; \
+        mainloop_code \
         vst1q_s32((int32_t*)dst, n_dst); \
         src1 += 4; src2 += 4; dst += 4; \
     } \
     if (dif != 0) { \
         for (uint32_t idx = 0; idx < dif; idx++) { \
-            loopCode2; \
+            secondloop_code \
             src1++; src2++; dst++; \
         } \
     } \
     return res; \
 }
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC2F_NEON(loopCode1, loopCode2) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+#define MN_DIV_DstSrc1Src2_MAINLOOP_INT32_NEON(code) code
+#define MN_DIV_DstSrc1Src2_SECONDLOOP_INT32_NEON(code) code
+
+// VEC2F operations
+#define MN_DIV_DstSrc1Src2_OPERATION_VEC2F_NEON(mainloop_code, secondloop_code) { \
     mn_result_t res = MN_OK; \
     float32x2_t n_src1, n_src2, n_dst; \
     uint32_t dif = count % 2; \
     for (; count > dif; count -= 2) { \
         n_src1 = vld1_f32((float32_t*)src1); \
         n_src2 = vld1_f32((float32_t*)src2); \
-        loopCode1; \
+        mainloop_code \
         vst1_f32((float32_t*)dst, n_dst); \
         src1 += 2; src2 += 2; dst += 2; \
     } \
     if (dif != 0) { \
-        loopCode2; \
+        secondloop_code \
         src1++; src2++; dst++; \
     } \
     return res; \
 }
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC2I_NEON(loopCode1, loopCode2) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+#define MN_DIV_DstSrc1Src2_MAINLOOP_VEC2F_NEON(code) code
+#define MN_DIV_DstSrc1Src2_SECONDLOOP_VEC2F_NEON(code) code
+
+// VEC2I operations
+#define MN_DIV_DstSrc1Src2_OPERATION_VEC2I_NEON(mainloop_code, secondloop_code) { \
     mn_result_t res = MN_OK; \
     int32x2_t n_src1, n_src2, n_dst; \
     uint32_t dif = count % 2; \
     for (; count > dif; count -= 2) { \
         n_src1 = vld1_s32((int32_t*)src1); \
         n_src2 = vld1_s32((int32_t*)src2); \
-        loopCode1; \
+        mainloop_code \
         vst1_s32((int32_t*)dst, n_dst); \
         src1 += 2; src2 += 2; dst += 2; \
     } \
     if (dif != 0) { \
-        loopCode2; \
+        secondloop_code \
         src1++; src2++; dst++; \
     } \
     return res; \
 }
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC3F_NEON(loopCode1, loopCode2) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+#define MN_DIV_DstSrc1Src2_MAINLOOP_VEC2I_NEON(code) code
+#define MN_DIV_DstSrc1Src2_SECONDLOOP_VEC2I_NEON(code) code
+
+// VEC3F operations
+#define MN_DIV_DstSrc1Src2_OPERATION_VEC3F_NEON(mainloop_code, secondloop_code) { \
     mn_result_t res = MN_OK; \
     float32x4_t n_src11, n_src12, n_src13; \
     float32x4_t n_src21, n_src22, n_src23; \
     float32x4_t n_dst1, n_dst2, n_dst3; \
     uint32_t dif = count % 4; \
     for (; count > dif; count -= 4) { \
-        /* Load 12 floats (4 vec3f) as 3 separate float32x4_t vectors */ \
         n_src11 = vld1q_f32((float32_t*)src1); \
         n_src12 = vld1q_f32((float32_t*)src1 + 4); \
         n_src13 = vld1q_f32((float32_t*)src1 + 8); \
         n_src21 = vld1q_f32((float32_t*)src2); \
         n_src22 = vld1q_f32((float32_t*)src2 + 4); \
         n_src23 = vld1q_f32((float32_t*)src2 + 8); \
-        loopCode1; \
+        mainloop_code \
         vst1q_f32((float32_t*)dst, n_dst1); \
         vst1q_f32((float32_t*)dst + 4, n_dst2); \
         vst1q_f32((float32_t*)dst + 8, n_dst3); \
@@ -2201,29 +2213,31 @@ extern "C" {
     } \
     if (dif != 0) { \
         for (uint32_t idx = 0; idx < dif; idx++) { \
-            loopCode2; \
+            secondloop_code \
             src1++; src2++; dst++; \
         } \
     } \
     return res; \
 }
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC3I_NEON(loopCode1, loopCode2) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+#define MN_DIV_DstSrc1Src2_MAINLOOP_VEC3F_NEON(code) code
+#define MN_DIV_DstSrc1Src2_SECONDLOOP_VEC3F_NEON(code) code
+
+// VEC3I operations
+#define MN_DIV_DstSrc1Src2_OPERATION_VEC3I_NEON(mainloop_code, secondloop_code) { \
     mn_result_t res = MN_OK; \
     int32x4_t n_src11, n_src12, n_src13; \
     int32x4_t n_src21, n_src22, n_src23; \
     int32x4_t n_dst1, n_dst2, n_dst3; \
     uint32_t dif = count % 4; \
     for (; count > dif; count -= 4) { \
-        /* Load 12 int32 (4 vec3i) as 3 separate int32x4_t vectors */ \
         n_src11 = vld1q_s32((int32_t*)src1); \
         n_src12 = vld1q_s32((int32_t*)src1 + 4); \
         n_src13 = vld1q_s32((int32_t*)src1 + 8); \
         n_src21 = vld1q_s32((int32_t*)src2); \
         n_src22 = vld1q_s32((int32_t*)src2 + 4); \
         n_src23 = vld1q_s32((int32_t*)src2 + 8); \
-        loopCode1; \
+        mainloop_code \
         vst1q_s32((int32_t*)dst, n_dst1); \
         vst1q_s32((int32_t*)dst + 4, n_dst2); \
         vst1q_s32((int32_t*)dst + 8, n_dst3); \
@@ -2231,58 +2245,47 @@ extern "C" {
     } \
     if (dif != 0) { \
         for (uint32_t idx = 0; idx < dif; idx++) { \
-            loopCode2; \
+            secondloop_code \
             src1++; src2++; dst++; \
         } \
     } \
     return res; \
 }
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC4F_NEON(loopCode) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+#define MN_DIV_DstSrc1Src2_MAINLOOP_VEC3I_NEON(code) code
+#define MN_DIV_DstSrc1Src2_SECONDLOOP_VEC3I_NEON(code) code
+
+// VEC4F operations
+#define MN_DIV_DstSrc1Src2_OPERATION_VEC4F_NEON(mainloop_code) { \
     mn_result_t res = MN_OK; \
     float32x4_t n_src1, n_src2, n_dst; \
     for (; count != 0; count--) { \
         n_src1 = vld1q_f32((float32_t*)src1); \
         n_src2 = vld1q_f32((float32_t*)src2); \
-        loopCode; \
+        mainloop_code \
         vst1q_f32((float32_t*)dst, n_dst); \
         src1++; src2++; dst++; \
     } \
     return res; \
 }
 
-#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC4I_NEON(loopCode) { \
-    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); \
+#define MN_DIV_DstSrc1Src2_MAINLOOP_VEC4F_NEON(code) code
+
+// VEC4I operations
+#define MN_DIV_DstSrc1Src2_OPERATION_VEC4I_NEON(mainloop_code) { \
     mn_result_t res = MN_OK; \
     int32x4_t n_src1, n_src2, n_dst; \
     for (; count != 0; count--) { \
         n_src1 = vld1q_s32((int32_t*)src1); \
         n_src2 = vld1q_s32((int32_t*)src2); \
-        loopCode; \
+        mainloop_code \
         vst1q_s32((int32_t*)dst, n_dst); \
         src1++; src2++; dst++; \
     } \
     return res; \
 }
 
-#define MN_MAINLOOP_FLOAT_NEON_DIV \
-    float32x4_t reciprocal = vrecpeq_f32(n_src2); \
-    reciprocal = vmulq_f32(vrecpsq_f32(n_src2, reciprocal), reciprocal); \
-    reciprocal = vmulq_f32(vrecpsq_f32(n_src2, reciprocal), reciprocal); \
-    n_dst = vmulq_f32(n_src1, reciprocal);
-
-#define MN_MAINLOOP_INT32_NEON_DIV \
-    float32x4_t f_src1 = vcvtq_f32_s32(n_src1); \
-    float32x4_t f_src2 = vcvtq_f32_s32(n_src2); \
-    float32x4_t reciprocal = vrecpeq_f32(f_src2); \
-    reciprocal = vmulq_f32(vrecpsq_f32(f_src2, reciprocal), reciprocal); \
-    reciprocal = vmulq_f32(vrecpsq_f32(f_src2, reciprocal), reciprocal); \
-    float32x4_t f_result = vmulq_f32(f_src1, reciprocal); \
-    n_dst = vcvtq_s32_f32(f_result);
-
-#define MN_SECONDLOOP_FLOAT_DIV *dst = *src1 / *src2;
-#define MN_SECONDLOOP_INT32_DIV *dst = *src1 / *src2;
+#define MN_DIV_DstSrc1Src2_MAINLOOP_VEC4I_NEON(code) code
 
 // -----------------------------------------------------------------------------
 // End of header guards
