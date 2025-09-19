@@ -1,3 +1,4 @@
+// MSVC-Compatible MN_div_neon.c
 #include "MN_dtype.h"
 #include "MN_macro.h"
 #include "MN_math.h"
@@ -87,35 +88,43 @@ mn_result_t mn_div_vec2i_neon(mn_vec2i_t * dst, mn_vec2i_t * src1, mn_vec2i_t * 
     );
 }
 
-// FIXED VEC3F - Process element by element to avoid memory issues
+// MSVC-Compatible VEC3F - Uses NEON load intrinsics instead of initializer lists
 mn_result_t mn_div_vec3f_neon(mn_vec3f_t * dst, mn_vec3f_t * src1, mn_vec3f_t * src2, uint32_t count) {
     mn_result_t res = MN_OK;
     MN_CHECK_Dst1SRC1SRC2(dst, src1, src2);
     
-    // Process 4 vec3f at a time using scalar approach with SIMD for components
+    // Process 4 vec3f at a time using proper NEON intrinsics
     uint32_t simd_count = count - (count % 4);
     uint32_t i;
     
     for (i = 0; i < simd_count; i += 4) {
-        // Load X components
-        float32x4_t x1 = {src1[i].x, src1[i+1].x, src1[i+2].x, src1[i+3].x};
-        float32x4_t x2 = {src2[i].x, src2[i+1].x, src2[i+2].x, src2[i+3].x};
+        // Create temporary arrays for component extraction
+        float x1_vals[4] = {src1[i].x, src1[i+1].x, src1[i+2].x, src1[i+3].x};
+        float x2_vals[4] = {src2[i].x, src2[i+1].x, src2[i+2].x, src2[i+3].x};
+        float y1_vals[4] = {src1[i].y, src1[i+1].y, src1[i+2].y, src1[i+3].y};
+        float y2_vals[4] = {src2[i].y, src2[i+1].y, src2[i+2].y, src2[i+3].y};
+        float z1_vals[4] = {src1[i].z, src1[i+1].z, src1[i+2].z, src1[i+3].z};
+        float z2_vals[4] = {src2[i].z, src2[i+1].z, src2[i+2].z, src2[i+3].z};
+        
+        // Load X components using vld1q_f32
+        float32x4_t x1 = vld1q_f32(x1_vals);
+        float32x4_t x2 = vld1q_f32(x2_vals);
         float32x4_t x_rec = vrecpeq_f32(x2);
         x_rec = vmulq_f32(vrecpsq_f32(x2, x_rec), x_rec);
         x_rec = vmulq_f32(vrecpsq_f32(x2, x_rec), x_rec);
         float32x4_t x_result = vmulq_f32(x1, x_rec);
         
-        // Load Y components
-        float32x4_t y1 = {src1[i].y, src1[i+1].y, src1[i+2].y, src1[i+3].y};
-        float32x4_t y2 = {src2[i].y, src2[i+1].y, src2[i+2].y, src2[i+3].y};
+        // Load Y components using vld1q_f32
+        float32x4_t y1 = vld1q_f32(y1_vals);
+        float32x4_t y2 = vld1q_f32(y2_vals);
         float32x4_t y_rec = vrecpeq_f32(y2);
         y_rec = vmulq_f32(vrecpsq_f32(y2, y_rec), y_rec);
         y_rec = vmulq_f32(vrecpsq_f32(y2, y_rec), y_rec);
         float32x4_t y_result = vmulq_f32(y1, y_rec);
         
-        // Load Z components
-        float32x4_t z1 = {src1[i].z, src1[i+1].z, src1[i+2].z, src1[i+3].z};
-        float32x4_t z2 = {src2[i].z, src2[i+1].z, src2[i+2].z, src2[i+3].z};
+        // Load Z components using vld1q_f32
+        float32x4_t z1 = vld1q_f32(z1_vals);
+        float32x4_t z2 = vld1q_f32(z2_vals);
         float32x4_t z_rec = vrecpeq_f32(z2);
         z_rec = vmulq_f32(vrecpsq_f32(z2, z_rec), z_rec);
         z_rec = vmulq_f32(vrecpsq_f32(z2, z_rec), z_rec);
@@ -144,19 +153,27 @@ mn_result_t mn_div_vec3f_neon(mn_vec3f_t * dst, mn_vec3f_t * src1, mn_vec3f_t * 
     return res;
 }
 
-// FIXED VEC3I - Process element by element to avoid memory issues
+// MSVC-Compatible VEC3I - Uses NEON load intrinsics instead of initializer lists
 mn_result_t mn_div_vec3i_neon(mn_vec3i_t * dst, mn_vec3i_t * src1, mn_vec3i_t * src2, uint32_t count) {
     mn_result_t res = MN_OK;
     MN_CHECK_Dst1SRC1SRC2(dst, src1, src2);
     
-    // Process 4 vec3i at a time using scalar approach with SIMD for components
+    // Process 4 vec3i at a time using proper NEON intrinsics
     uint32_t simd_count = count - (count % 4);
     uint32_t i;
     
     for (i = 0; i < simd_count; i += 4) {
+        // Create temporary arrays for component extraction
+        int32_t x1_vals[4] = {src1[i].x, src1[i+1].x, src1[i+2].x, src1[i+3].x};
+        int32_t x2_vals[4] = {src2[i].x, src2[i+1].x, src2[i+2].x, src2[i+3].x};
+        int32_t y1_vals[4] = {src1[i].y, src1[i+1].y, src1[i+2].y, src1[i+3].y};
+        int32_t y2_vals[4] = {src2[i].y, src2[i+1].y, src2[i+2].y, src2[i+3].y};
+        int32_t z1_vals[4] = {src1[i].z, src1[i+1].z, src1[i+2].z, src1[i+3].z};
+        int32_t z2_vals[4] = {src2[i].z, src2[i+1].z, src2[i+2].z, src2[i+3].z};
+        
         // Load and convert X components
-        int32x4_t x1 = {src1[i].x, src1[i+1].x, src1[i+2].x, src1[i+3].x};
-        int32x4_t x2 = {src2[i].x, src2[i+1].x, src2[i+2].x, src2[i+3].x};
+        int32x4_t x1 = vld1q_s32(x1_vals);
+        int32x4_t x2 = vld1q_s32(x2_vals);
         float32x4_t f_x1 = vcvtq_f32_s32(x1);
         float32x4_t f_x2 = vcvtq_f32_s32(x2);
         float32x4_t x_rec = vrecpeq_f32(f_x2);
@@ -165,8 +182,8 @@ mn_result_t mn_div_vec3i_neon(mn_vec3i_t * dst, mn_vec3i_t * src1, mn_vec3i_t * 
         int32x4_t x_result = vcvtq_s32_f32(vmulq_f32(f_x1, x_rec));
         
         // Load and convert Y components
-        int32x4_t y1 = {src1[i].y, src1[i+1].y, src1[i+2].y, src1[i+3].y};
-        int32x4_t y2 = {src2[i].y, src2[i+1].y, src2[i+2].y, src2[i+3].y};
+        int32x4_t y1 = vld1q_s32(y1_vals);
+        int32x4_t y2 = vld1q_s32(y2_vals);
         float32x4_t f_y1 = vcvtq_f32_s32(y1);
         float32x4_t f_y2 = vcvtq_f32_s32(y2);
         float32x4_t y_rec = vrecpeq_f32(f_y2);
@@ -175,8 +192,8 @@ mn_result_t mn_div_vec3i_neon(mn_vec3i_t * dst, mn_vec3i_t * src1, mn_vec3i_t * 
         int32x4_t y_result = vcvtq_s32_f32(vmulq_f32(f_y1, y_rec));
         
         // Load and convert Z components
-        int32x4_t z1 = {src1[i].z, src1[i+1].z, src1[i+2].z, src1[i+3].z};
-        int32x4_t z2 = {src2[i].z, src2[i+1].z, src2[i+2].z, src2[i+3].z};
+        int32x4_t z1 = vld1q_s32(z1_vals);
+        int32x4_t z2 = vld1q_s32(z2_vals);
         float32x4_t f_z1 = vcvtq_f32_s32(z1);
         float32x4_t f_z2 = vcvtq_f32_s32(z2);
         float32x4_t z_rec = vrecpeq_f32(f_z2);
