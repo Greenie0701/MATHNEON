@@ -34,16 +34,27 @@ Supported routines: Int and Float 32-bit data types [1 to 4 Dimensional arrays]
 mn_result_t mn_div_float_neon(mn_float32_t * dst, mn_float32_t * src1, mn_float32_t * src2, uint32_t count)
 {
     MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_FLOAT_NEON(
-        MN_MAINLOOP_FLOAT_NEON_DIV,      /* SIMD block for 4 elements */
-        MN_SECONDLOOP_FLOAT_DIV          /* scalar leftover elements */
+        /* Use reciprocal approximation for better performance */
+        float32x4_t reciprocal = vrecpeq_f32(n_src2);
+        reciprocal = vmulq_f32(vrecpsq_f32(n_src2, reciprocal), reciprocal);
+        reciprocal = vmulq_f32(vrecpsq_f32(n_src2, reciprocal), reciprocal);
+        n_dst = vmulq_f32(n_src1, reciprocal);,      /* SIMD block for 4 elements */
+        *dst = *src1 / *src2;                        /* scalar leftover elements */
     );
 }
 
 mn_result_t mn_div_int32_neon(mn_int32_t * dst, mn_int32_t * src1, mn_int32_t * src2, uint32_t count)
 {
     MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_INT32_NEON(
-        MN_MAINLOOP_INT32_NEON_DIV,      /* SIMD block for 4 elements */
-        MN_SECONDLOOP_INT32_DIV          /* scalar leftover elements */
+        /* Convert to float, divide using reciprocal, convert back */
+        float32x4_t f_src1 = vcvtq_f32_s32(n_src1);
+        float32x4_t f_src2 = vcvtq_f32_s32(n_src2);
+        float32x4_t reciprocal = vrecpeq_f32(f_src2);
+        reciprocal = vmulq_f32(vrecpsq_f32(f_src2, reciprocal), reciprocal);
+        reciprocal = vmulq_f32(vrecpsq_f32(f_src2, reciprocal), reciprocal);
+        float32x4_t f_result = vmulq_f32(f_src1, reciprocal);
+        n_dst = vcvtq_s32_f32(f_result);,      /* SIMD block for 4 elements */
+        *dst = *src1 / *src2;                  /* scalar leftover elements */
     );
 }
 
