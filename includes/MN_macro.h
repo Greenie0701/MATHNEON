@@ -394,6 +394,30 @@ extern "C" {
     ); \
 }
 
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_FLOAT_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    MN_DIV_DstSrc1Src2_OPERATION_FLOAT_NEON(  \
+        MN_DIV_DstSrc1Src2_MAINLOOP_FLOAT_NEON(loopCode1); , \
+        MN_DIV_DstSrc1Src2_SECONDLOOP_FLOAT_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_INT32_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    MN_DIV_DstSrc1Src2_OPERATION_INT32_NEON(  \
+        MN_DIV_DstSrc1Src2_MAINLOOP_INT32_NEON(loopCode1); , \
+        MN_DIV_DstSrc1Src2_SECONDLOOP_INT32_NEON(loopCode2); \
+    ); \
+}
+
+#define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC2F_NEON(loopCode1, loopCode2) { \
+    MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
+    MN_DIV_DstSrc1Src2_OPERATION_VEC2F_NEON(  \
+        MN_DIV_DstSrc1Src2_MAINLOOP_VEC2F_NEON(loopCode1); , \
+        MN_DIV_DstSrc1Src2_SECONDLOOP_VEC2F_NEON(loopCode2); \
+    ); \
+}
+
 #define MN_DIV_DstSrc1Src2_DO_COUNT_TIMES_VEC2I_NEON(loopCode1, loopCode2) { \
     MN_CHECK_Dst1SRC1SRC2(dst, src1, src2); /* check pointers don't overlap */ \
     MN_DIV_DstSrc1Src2_OPERATION_VEC2I_NEON(  \
